@@ -1,0 +1,2206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice — Helix</title>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.css">
+<style>
+:root {
+  --bg-primary: #F8FAFC; --bg-secondary: #F1F5F9; --bg-tertiary: #E2E8F0;
+  --surface: #FFFFFF; --border: #E2E8F0; --border-subtle: #F1F5F9; --border-strong: #CBD5E1;
+  --primary: #6366F1; --primary-hover: #4F46E5; --primary-light: #EEF2FF; --primary-dark-light: #E0E7FF;
+  --secondary: #8B5CF6; --secondary-light: #F5F3FF;
+  --success: #10B981; --success-light: #D1FAE5; --success-dark: #065F46;
+  --warning: #F59E0B; --warning-light: #FEF3C7; --warning-dark: #92400E;
+  --error: #EF4444; --error-light: #FEE2E2; --error-dark: #991B1B;
+  --info: #3B82F6; --info-light: #DBEAFE;
+  --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+  --font-sans: 'Inter', system-ui, sans-serif; --font-mono: 'JetBrains Mono', monospace;
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem; --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem;
+  --r-sm: 0.375rem; --r-md: 0.5rem; --r-lg: 0.75rem; --r-xl: 1rem; --r-2xl: 1.25rem; --r-full: 9999px;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06); --shadow-md: 0 4px 6px -1px rgba(15,23,42,0.07);
+  --shadow-lg: 0 10px 15px -3px rgba(15,23,42,0.08); --shadow-xl: 0 20px 25px -5px rgba(15,23,42,0.1);
+  --shadow-glow: 0 0 0 3px rgba(99,102,241,0.15);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 150ms; --dur-standard: 250ms; --dur-major: 500ms;
+  --sidebar-w: 240px; --topbar-h: 64px; --content-max: 1400px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0B0F19;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1F2937;
+  --surface: #111827;
+  --surface-hover: #1F2937;
+  --border: #1F2937;
+  --border-subtle: #161E2E;
+  --border-strong: #374151;
+  --primary-light: rgba(99, 102, 241, 0.15);
+  --primary-dark-light: rgba(99, 102, 241, 0.25);
+  --secondary-light: rgba(139, 92, 246, 0.15);
+  --success-light: rgba(16, 185, 129, 0.15);
+  --warning-light: rgba(245, 158, 11, 0.15);
+  --error-light: rgba(239, 68, 68, 0.15);
+  --info-light: rgba(59, 130, 246, 0.15);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-faint: #334155;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+body { background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+code, pre, .mono { font-family: var(--font-mono); }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: var(--r-sm); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
+
+.ph { font-size: 24px; line-height: 1; }
+.nav-icon { width: 18px; height: 18px; }
+.util-icon { width: 16px; height: 16px; }
+
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 40; transition: transform var(--dur-standard) var(--ease-out); }
+.sidebar-brand { padding: var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); border-bottom: 1px solid var(--border-subtle); }
+.sidebar-brand-text { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar-nav { padding: var(--sp-4); flex: 1; overflow-y: auto; }
+.sidebar-section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: var(--sp-4) var(--sp-3) var(--sp-2); }
+.nav-item { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all var(--dur-micro); margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item .nav-icon { color: var(--text-muted); transition: color var(--dur-micro); flex-shrink: 0; }
+.nav-item:hover .nav-icon { color: var(--text-secondary); }
+.nav-item.active .nav-icon { color: var(--primary); }
+.sidebar-footer { padding: var(--sp-4); border-top: 1px solid var(--border-subtle); }
+.theme-toggle { display: flex; align-items: center; gap: var(--sp-2); font-size: 0.8125rem; color: var(--text-secondary); padding: var(--sp-2) var(--sp-3); cursor: pointer; border-radius: var(--r-md); transition: background var(--dur-micro); background: none; border: none; width: 100%; text-align: left; }
+.theme-toggle:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.main-content { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar { height: var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 var(--sp-8); gap: var(--sp-4); position: sticky; top: 0; z-index: 30; }
+.topbar-search { flex: 1; max-width: 480px; display: flex; align-items: center; gap: var(--sp-3); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-2) var(--sp-4); transition: all var(--dur-micro); }
+.topbar-search:focus-within { border-color: var(--primary); box-shadow: var(--shadow-glow); background: var(--surface); }
+.topbar-search input { flex: 1; border: none; background: none; outline: none; font-size: 0.875rem; color: var(--text-primary); font-family: var(--font-sans); }
+.topbar-search input::placeholder { color: var(--text-muted); }
+.topbar-search .util-icon { color: var(--text-muted); flex-shrink: 0; }
+.search-kbd { font-size: 0.6875rem; color: var(--text-muted); background: var(--surface); padding: 2px 6px; border-radius: var(--r-sm); border: 1px solid var(--border); font-weight: 500; }
+.topbar-actions { display: flex; align-items: center; gap: var(--sp-3); margin-left: auto; }
+.icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-md); color: var(--text-secondary); cursor: pointer; transition: all var(--dur-micro); position: relative; background: none; border: none; }
+.icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.icon-btn .badge-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--error); border-radius: var(--r-full); border: 2px solid var(--surface); }
+.avatar { width: 36px; height: 36px; border-radius: var(--r-full); background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem; cursor: pointer; }
+.avatar:hover { transform: scale(1.05); }
+.mobile-menu-btn { display: none; }
+
+.page { padding: var(--sp-6); max-width: var(--content-max); margin: 0 auto; width: 100%; }
+.practice-header { margin-bottom: var(--sp-5); }
+.practice-breadcrumb { display: flex; align-items: center; gap: var(--sp-2); font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--sp-3); flex-wrap: wrap; }
+.practice-breadcrumb a { color: var(--text-secondary); }
+.practice-breadcrumb a:hover { color: var(--primary); }
+.practice-title { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+.practice-subtitle { font-size: 0.9375rem; color: var(--text-secondary); display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+
+.tab-row-with-progress { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); margin-bottom: var(--sp-6); gap: var(--sp-4); flex-wrap: wrap; }
+.tab-row { display: flex; gap: var(--sp-1); }
+.tab { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-4); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--dur-micro); margin-bottom: -1px; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--font-sans); }
+.tab:hover { color: var(--text-primary); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tab .util-icon { width: 16px; height: 16px; }
+
+.global-progress { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) 0; }
+.global-progress-info { text-align: right; }
+.global-progress-count { font-size: 0.8125rem; font-weight: 600; color: var(--text-primary); }
+.global-progress-label { font-size: 0.6875rem; color: var(--text-muted); }
+.global-progress-bar { width: 120px; height: 4px; background: var(--bg-secondary); border-radius: var(--r-full); overflow: hidden; margin-top: 4px; }
+.global-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: var(--r-full); transition: width var(--dur-major) var(--ease-out); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; animation: panelFade 0.3s var(--ease-out); }
+@keyframes panelFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.lesson-layout { display: grid; grid-template-columns: 280px 1fr 320px; gap: var(--sp-6); min-height: 600px; }
+.lesson-map { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-5); height: fit-content; position: sticky; top: 80px; }
+.lesson-map-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3); }
+.lesson-map-title { font-size: 0.9375rem; font-weight: 600; }
+.lesson-map-current { font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--sp-4); padding-bottom: var(--sp-3); border-bottom: 1px solid var(--border-subtle); }
+.lesson-map-current strong { color: var(--text-primary); font-weight: 600; }
+.lesson-map-list { display: flex; flex-direction: column; gap: 2px; }
+.lesson-map-item { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); cursor: pointer; transition: all var(--dur-micro); font-size: 0.875rem; }
+.lesson-map-item:hover { background: var(--bg-secondary); }
+.lesson-map-item.active { background: var(--primary-light); }
+.lesson-map-item.active .lesson-title { color: var(--primary); font-weight: 600; }
+.lesson-map-item.completed .lesson-status { background: var(--success); color: white; }
+.lesson-map-item.completed .lesson-title { color: var(--text-secondary); }
+.lesson-map-item.locked { opacity: 0.5; cursor: not-allowed; }
+.lesson-map-item.locked .lesson-status { background: var(--bg-secondary); color: var(--text-muted); border: 1px dashed var(--border); }
+.lesson-status { width: 24px; height: 24px; border-radius: var(--r-full); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; flex-shrink: 0; background: var(--bg-secondary); color: var(--text-secondary); }
+.lesson-map-item.active .lesson-status { background: var(--primary); color: white; }
+.lesson-title { flex: 1; color: var(--text-primary); min-width: 0; }
+.lesson-activity { font-size: 0.6875rem; color: var(--text-muted); font-weight: 500; display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; padding: 1px 5px; border-radius: var(--r-sm); background: var(--bg-secondary); }
+.lesson-activity .util-icon { width: 10px; height: 10px; }
+.lesson-map-item.active .lesson-activity { background: var(--primary-dark-light); color: var(--primary); }
+.lesson-map-item.completed .lesson-activity { background: var(--success-light); color: var(--success-dark); }
+.begin-activity-btn { display: none; margin-left: auto; font-size: 0.75rem; font-weight: 600; color: var(--primary); background: var(--surface); border: 1px solid var(--primary); padding: 4px 10px; border-radius: var(--r-md); cursor: pointer; transition: all var(--dur-micro); white-space: nowrap; }
+.begin-activity-btn:hover { background: var(--primary); color: white; }
+.lesson-map-item.active .begin-activity-btn { display: inline-flex; align-items: center; gap: 4px; }
+
+.overview-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-6); }
+.overview-header { margin-bottom: var(--sp-5); }
+.overview-label { font-size: 0.75rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.overview-title { font-size: 1.25rem; font-weight: 700; margin-bottom: var(--sp-3); }
+.overview-desc { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--sp-5); }
+.overview-example { background: var(--bg-secondary); border-radius: var(--r-lg); padding: var(--sp-4); margin-bottom: var(--sp-5); border-left: 3px solid var(--primary); }
+.overview-example-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.overview-example code { font-family: var(--font-mono); font-size: 0.875rem; color: var(--text-primary); line-height: 1.7; display: block; }
+.overview-illustration { background: var(--bg-secondary); border-radius: var(--r-lg); padding: var(--sp-6); display: flex; align-items: center; justify-content: center; min-height: 120px; }
+
+.try-yourself { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-5); height: fit-content; }
+.try-yourself-header { margin-bottom: var(--sp-4); }
+.try-yourself-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 4px; }
+.try-yourself-subtitle { font-size: 0.8125rem; color: var(--text-muted); }
+.try-checklist { display: flex; flex-direction: column; gap: var(--sp-3); }
+.try-item { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-2) 0; cursor: pointer; }
+.try-checkbox { width: 20px; height: 20px; border-radius: var(--r-md); border: 2px solid var(--border); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all var(--dur-micro); cursor: pointer; }
+.try-item.checked .try-checkbox { background: var(--primary); border-color: var(--primary); }
+.try-item.checked .try-checkbox::after { content: ''; width: 10px; height: 6px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg) translateY(-1px); }
+.try-item.checked .try-label { color: var(--text-muted); text-decoration: line-through; }
+.try-label { font-size: 0.875rem; color: var(--text-primary); transition: all var(--dur-micro); }
+.try-progress { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+.try-progress-bar { height: 4px; background: var(--bg-secondary); border-radius: var(--r-full); overflow: hidden; margin-bottom: 6px; }
+.try-progress-fill { height: 100%; background: var(--primary); border-radius: var(--r-full); transition: width var(--dur-major) var(--ease-out); }
+.try-progress-text { font-size: 0.75rem; color: var(--text-muted); }
+
+.practice-workspace { display: grid; grid-template-columns: 1fr 300px; gap: var(--sp-6); min-height: 500px; }
+.practice-main { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-6); min-width: 0; }
+.practice-support-rail { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-5); height: fit-content; position: sticky; top: 80px; }
+.support-section { padding: var(--sp-4) 0; }
+.support-section + .support-section { border-top: 1px solid var(--border-subtle); }
+.support-section-header { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.support-section-title { font-size: 0.875rem; font-weight: 600; }
+.support-section-message { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--sp-3); line-height: 1.5; }
+.assistant-avatar-sm { width: 28px; height: 28px; border-radius: var(--r-full); background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.75rem; }
+.assistant-action-btn { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--r-md); cursor: pointer; transition: all var(--dur-micro); font-size: 0.8125rem; text-align: left; width: 100%; margin-bottom: var(--sp-2); }
+.assistant-action-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+.assistant-action-btn .ph { font-size: 16px; color: var(--primary); }
+.assistant-action-btn-text { flex: 1; }
+.assistant-action-btn-text strong { display: block; font-weight: 600; font-size: 0.8125rem; }
+.assistant-action-btn-text span { font-size: 0.75rem; color: var(--text-muted); }
+
+.chat-messages-box { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: var(--sp-3); padding-right: 4px; }
+.chat-msg { padding: 8px 12px; border-radius: var(--r-md); font-size: 0.8125rem; line-height: 1.5; word-break: break-word; }
+.chat-msg-user { background: var(--primary-light); color: var(--primary); align-self: flex-end; border-bottom-right-radius: 2px; max-width: 88%; font-weight: 500; }
+.chat-msg-ai { background: var(--bg-secondary); color: var(--text-primary); align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border-subtle); max-width: 95%; }
+.chat-msg-ai code { background: rgba(15,23,42,0.08); padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono); font-size: 0.75rem; }
+[data-theme="dark"] .chat-msg-ai code { background: rgba(255,255,255,0.1); }
+.chat-meta-badge { display: inline-block; font-size: 0.6875rem; font-weight: 600; padding: 1px 6px; border-radius: var(--r-full); }
+.chat-chip { padding: 3px 8px; border-radius: var(--r-full); background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); font-size: 0.6875rem; font-weight: 500; cursor: pointer; transition: all var(--dur-micro); white-space: nowrap; }
+.chat-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.chat-input-bar { display: flex; gap: 6px; align-items: center; }
+.chat-input-field { flex: 1; min-width: 0; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--r-md); padding: 6px 10px; font-size: 0.8125rem; color: var(--text-primary); outline: none; font-family: var(--font-sans); }
+.chat-input-field:focus { border-color: var(--primary); background: var(--surface); }
+.chat-send-btn { padding: 6px 10px; border-radius: var(--r-md); background: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--dur-micro); }
+.chat-send-btn:hover { background: var(--primary-hover); }
+.btn-pulse { animation: nextPulse 1.8s infinite; }
+@keyframes nextPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.5); } 50% { box-shadow: 0 0 0 6px rgba(99,102,241,0); } }
+
+.hint-item { border: 1px solid var(--border); border-radius: var(--r-md); margin-bottom: var(--sp-2); overflow: hidden; transition: all var(--dur-micro); }
+.hint-item:hover { border-color: var(--border-strong); }
+.hint-item.locked { opacity: 0.5; }
+.hint-item.locked .hint-header { cursor: not-allowed; }
+.hint-header { display: flex; align-items: center; justify-content: space-between; padding: var(--sp-2) var(--sp-3); cursor: pointer; font-size: 0.8125rem; font-weight: 500; }
+.hint-header:hover:not(.locked) { background: var(--bg-secondary); }
+.hint-number { display: flex; align-items: center; gap: var(--sp-2); }
+.hint-num-badge { width: 20px; height: 20px; border-radius: var(--r-full); background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; font-weight: 600; }
+.hint-body { padding: 0 var(--sp-3) var(--sp-3); font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.6; display: none; }
+.hint-item.expanded .hint-body { display: block; }
+.hint-item.expanded .hint-chevron { transform: rotate(180deg); }
+.hint-chevron { transition: transform var(--dur-micro); color: var(--text-muted); }
+
+.practice-activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); flex-wrap: wrap; gap: var(--sp-3); }
+.practice-activity-title { font-size: 1.125rem; font-weight: 600; }
+.practice-activity-type { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--primary); background: var(--primary-light); padding: 4px 10px; border-radius: var(--r-full); text-transform: uppercase; letter-spacing: 0.03em; }
+.practice-instruction { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: var(--sp-5); line-height: 1.6; }
+
+.review-banner { background: var(--primary-light); border: 1px solid var(--primary-dark-light); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); margin-bottom: var(--sp-5); display: flex; align-items: center; gap: var(--sp-3); font-size: 0.875rem; color: var(--primary); }
+.review-banner .ph { font-size: 18px; }
+
+.theory-section { margin-bottom: var(--sp-6); }
+.theory-section-label { font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: var(--sp-2); }
+.theory-section-title { font-size: 1rem; font-weight: 600; margin-bottom: var(--sp-2); color: var(--text-primary); }
+.theory-section-text { font-size: 0.9375rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--sp-3); }
+.theory-code-block { background: #0D1117; border-radius: var(--r-lg); padding: var(--sp-4); font-family: var(--font-mono); font-size: 0.875rem; color: #E6EDF3; line-height: 1.7; margin-bottom: var(--sp-3); border: 1px solid #21262D; }
+.theory-run-btn { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: var(--r-md); color: var(--primary); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: all var(--dur-micro); margin-bottom: var(--sp-3); }
+.theory-run-btn:hover { background: rgba(99,102,241,0.15); }
+.theory-output { background: var(--bg-secondary); border-radius: var(--r-md); padding: var(--sp-3); font-family: var(--font-mono); font-size: 0.8125rem; color: var(--success); margin-bottom: var(--sp-3); display: none; }
+.theory-output.visible { display: block; }
+.theory-mistake { background: var(--error-light); border-left: 3px solid var(--error); border-radius: var(--r-md); padding: var(--sp-3); font-size: 0.875rem; color: var(--error-dark); margin-bottom: var(--sp-3); }
+.theory-mistake strong { color: var(--error-dark); }
+.theory-good { background: var(--success-light); border-left: 3px solid var(--success); border-radius: var(--r-md); padding: var(--sp-3); font-size: 0.875rem; color: var(--success-dark); margin-bottom: var(--sp-3); }
+.theory-good strong { color: var(--success-dark); }
+.theory-check { background: var(--primary-light); border: 1px solid var(--primary-dark-light); border-radius: var(--r-lg); padding: var(--sp-4); margin-top: var(--sp-4); }
+.theory-check-title { font-size: 0.875rem; font-weight: 600; color: var(--primary); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+.theory-check-question { font-size: 0.9375rem; color: var(--text-primary); margin-bottom: var(--sp-3); font-weight: 500; }
+.theory-check-options { display: flex; flex-direction: column; gap: var(--sp-2); margin-bottom: var(--sp-3); }
+.theory-check-option { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3); background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-md); cursor: pointer; transition: all var(--dur-micro); font-size: 0.875rem; }
+.theory-check-option:hover:not(.disabled) { border-color: var(--primary); background: var(--primary-light); }
+.theory-check-option.selected { border-color: var(--primary); background: var(--primary-light); }
+.theory-check-option.correct { border-color: var(--success); background: var(--success-light); }
+.theory-check-option.incorrect { border-color: var(--error); background: var(--error-light); }
+.theory-check-option.disabled { cursor: default; }
+.theory-check-radio { width: 16px; height: 16px; border-radius: var(--r-full); border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--dur-micro); }
+.theory-check-option.selected .theory-check-radio { border-color: var(--primary); background: var(--primary); }
+.theory-check-option.selected .theory-check-radio::after { content: ''; width: 5px; height: 5px; background: white; border-radius: var(--r-full); }
+.theory-check-option.correct .theory-check-radio { border-color: var(--success); background: var(--success); }
+.theory-check-option.incorrect .theory-check-radio { border-color: var(--error); background: var(--error); }
+
+.predict-code { background: #0D1117; border-radius: var(--r-lg); padding: var(--sp-4); font-family: var(--font-mono); font-size: 0.875rem; color: #E6EDF3; margin-bottom: var(--sp-5); border-left: 3px solid var(--primary); }
+.predict-options { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+.predict-option { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--bg-secondary); border: 1.5px solid var(--border); border-radius: var(--r-lg); cursor: pointer; transition: all var(--dur-micro); font-size: 0.875rem; font-family: var(--font-mono); }
+.predict-option:hover:not(.disabled) { border-color: var(--primary); background: var(--primary-light); }
+.predict-option.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: var(--shadow-glow); }
+.predict-option.correct { border-color: var(--success); background: var(--success-light); }
+.predict-option.incorrect { border-color: var(--error); background: var(--error-light); }
+.predict-option.disabled { cursor: default; }
+.predict-radio { width: 18px; height: 18px; border-radius: var(--r-full); border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--dur-micro); }
+.predict-option.selected .predict-radio { border-color: var(--primary); background: var(--primary); }
+.predict-option.selected .predict-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: var(--r-full); }
+.predict-option.correct .predict-radio { border-color: var(--success); background: var(--success); }
+.predict-option.incorrect .predict-radio { border-color: var(--error); background: var(--error); }
+
+.mcq-options { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+.mcq-option { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--bg-secondary); border: 1.5px solid var(--border); border-radius: var(--r-lg); cursor: pointer; transition: all var(--dur-micro); font-size: 0.9375rem; }
+.mcq-option:hover:not(.disabled) { border-color: var(--primary); background: var(--primary-light); }
+.mcq-option.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: var(--shadow-glow); }
+.mcq-option.correct { border-color: var(--success); background: var(--success-light); }
+.mcq-option.incorrect { border-color: var(--error); background: var(--error-light); }
+.mcq-option.disabled { cursor: default; }
+.mcq-radio { width: 18px; height: 18px; border-radius: var(--r-full); border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--dur-micro); }
+.mcq-option.selected .mcq-radio { border-color: var(--primary); background: var(--primary); }
+.mcq-option.selected .mcq-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: var(--r-full); }
+.mcq-option.correct .mcq-radio { border-color: var(--success); background: var(--success); }
+.mcq-option.incorrect .mcq-radio { border-color: var(--error); background: var(--error); }
+
+.code-editor-placeholder { background: #0D1117; border-radius: var(--r-xl); overflow: hidden; border: 1px solid #21262D; margin-bottom: var(--sp-4); }
+.code-header-placeholder { display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-4); background: #161B22; border-bottom: 1px solid #21262D; }
+.code-tab-placeholder { display: flex; align-items: center; gap: var(--sp-2); font-size: 0.8125rem; color: #94A3B8; font-family: var(--font-mono); }
+.code-tab-placeholder .dot { width: 8px; height: 8px; border-radius: var(--r-full); background: var(--success); }
+.code-actions-placeholder { display: flex; gap: var(--sp-2); }
+.code-body-placeholder { padding: var(--sp-5); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; color: #E6EDF3; min-height: 200px; outline: none; }
+.code-line-placeholder { display: flex; }
+.code-line-num { color: #484F58; min-width: 2rem; text-align: right; margin-right: var(--sp-4); user-select: none; }
+.code-keyword { color: #FF7B72; } .code-string { color: #A5D6FF; } .code-variable { color: #79C0FF; }
+.code-function { color: #D2A8FF; } .code-comment { color: #8B949E; font-style: italic; }
+.code-number { color: #79C0FF; } .code-operator { color: #FF7B72; }
+
+.output-placeholder { background: #0D1117; border: 1px solid #21262D; border-radius: var(--r-xl); overflow: hidden; }
+.output-header-placeholder { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-3) var(--sp-4); background: #161B22; border-bottom: 1px solid #21262D; font-size: 0.8125rem; }
+.output-tab-placeholder { color: #94A3B8; cursor: pointer; padding-bottom: 2px; border-bottom: 2px solid transparent; transition: all var(--dur-micro); background: none; border-top: none; border-left: none; border-right: none; font-size: 0.8125rem; font-family: var(--font-sans); }
+.output-tab-placeholder.active { color: #F1F5F9; border-bottom-color: var(--primary); }
+.output-body-placeholder { padding: var(--sp-4); font-family: var(--font-mono); font-size: 0.875rem; color: #94A3B8; min-height: 60px; }
+
+.debug-options { display: flex; flex-direction: column; gap: var(--sp-3); margin-bottom: var(--sp-5); }
+.debug-option { display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); background: var(--bg-secondary); border: 1.5px solid var(--border); border-radius: var(--r-lg); cursor: pointer; transition: all var(--dur-micro); font-size: 0.875rem; }
+.debug-option:hover:not(.disabled) { border-color: var(--primary); background: var(--primary-light); }
+.debug-option.selected { border-color: var(--primary); background: var(--primary-light); box-shadow: var(--shadow-glow); }
+.debug-option.correct { border-color: var(--success); background: var(--success-light); }
+.debug-option.incorrect { border-color: var(--error); background: var(--error-light); }
+.debug-option.disabled { cursor: default; }
+.debug-radio { width: 18px; height: 18px; border-radius: var(--r-full); border: 2px solid var(--border); flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all var(--dur-micro); }
+.debug-option.selected .debug-radio { border-color: var(--primary); background: var(--primary); }
+.debug-option.selected .debug-radio::after { content: ''; width: 6px; height: 6px; background: white; border-radius: var(--r-full); }
+.debug-option.correct .debug-radio { border-color: var(--success); background: var(--success); }
+.debug-option.incorrect .debug-radio { border-color: var(--error); background: var(--error); }
+
+.feedback-card { border-radius: var(--r-lg); padding: var(--sp-4); display: flex; gap: var(--sp-3); align-items: flex-start; margin-bottom: var(--sp-4); animation: feedbackSlide 0.3s var(--ease-out); }
+@keyframes feedbackSlide { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+.feedback-success { background: var(--success-light); border: 1px solid #A7F3D0; }
+.feedback-error { background: var(--error-light); border: 1px solid #FECACA; }
+.feedback-icon { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+.feedback-text { font-size: 0.875rem; color: var(--text-primary); line-height: 1.5; }
+.feedback-text strong { font-weight: 600; }
+.feedback-text code { background: rgba(15,23,42,0.08); padding: 1px 5px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8125rem; }
+
+.next-bar { display: flex; align-items: center; justify-content: space-between; padding-top: var(--sp-4); border-top: 1px solid var(--border); margin-top: var(--sp-5); flex-wrap: wrap; gap: var(--sp-3); }
+.next-bar-info { font-size: 0.8125rem; color: var(--text-muted); }
+.next-bar-info strong { color: var(--text-primary); font-weight: 600; }
+
+.notes-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-6); max-width: 800px; }
+.notes-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
+.notes-title { font-size: 1.125rem; font-weight: 600; }
+.notes-context { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--sp-4); display: flex; align-items: center; gap: 6px; }
+.notes-editor { width: 100%; min-height: 300px; border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-4); font-family: var(--font-sans); font-size: 0.9375rem; line-height: 1.7; resize: vertical; outline: none; transition: border-color var(--dur-micro); }
+.notes-editor:focus { border-color: var(--primary); box-shadow: var(--shadow-glow); }
+.notes-footer { display: flex; justify-content: flex-end; margin-top: var(--sp-4); gap: var(--sp-3); }
+
+.completion-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); display: none; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(4px); }
+.completion-overlay.active { display: flex; }
+.completion-modal { background: var(--surface); border-radius: var(--r-2xl); padding: var(--sp-8); max-width: 480px; width: 90%; text-align: center; box-shadow: var(--shadow-xl); animation: modalIn 0.4s var(--ease-out); }
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.completion-icon { width: 72px; height: 72px; border-radius: var(--r-full); background: var(--success-light); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--sp-5); }
+.completion-icon .ph { font-size: 36px; color: var(--success); }
+.completion-icon.concept-icon { width: 96px; height: 96px; background: linear-gradient(135deg, var(--primary-light), var(--secondary-light)); }
+.completion-icon.concept-icon .ph { font-size: 48px; color: var(--primary); }
+.completion-title { font-size: 1.375rem; font-weight: 700; margin-bottom: 8px; }
+.completion-title.concept-title { font-size: 1.625rem; }
+.completion-subtitle { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: var(--sp-5); }
+.completion-xp { display: inline-flex; align-items: center; gap: var(--sp-2); background: var(--warning-light); color: var(--warning-dark); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-full); font-size: 0.875rem; font-weight: 600; margin-bottom: var(--sp-5); }
+.completion-xp.concept-xp { font-size: 1rem; padding: var(--sp-3) var(--sp-6); }
+.completion-learned { background: var(--bg-secondary); border-radius: var(--r-lg); padding: var(--sp-4); margin-bottom: var(--sp-5); text-align: left; }
+.completion-learned-title { font-size: 0.8125rem; font-weight: 600; margin-bottom: var(--sp-3); }
+.completion-learned-list { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.7; }
+.completion-next-label { font-size: 0.8125rem; color: var(--text-muted); margin-bottom: var(--sp-2); }
+.completion-next-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.completion-next-desc { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--sp-4); }
+.completion-actions { display: flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-md); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all var(--dur-micro) var(--ease-out); border: 1px solid transparent; user-select: none; white-space: nowrap; font-family: var(--font-sans); line-height: 1.4; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: var(--surface); color: var(--text-primary); border-color: var(--border); }
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-strong); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.btn-sm { padding: var(--sp-1) var(--sp-3); font-size: 0.8125rem; }
+.btn-lg { padding: var(--sp-3) var(--sp-6); font-size: 0.9375rem; }
+.w-full { width: 100%; }
+
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--r-full); font-size: 0.75rem; font-weight: 500; }
+.badge-primary { background: var(--primary-light); color: var(--primary); }
+.badge-success { background: var(--success-light); color: var(--success-dark); }
+.badge-warning { background: var(--warning-light); color: var(--warning-dark); }
+
+.xp-counter { position: fixed; top: 80px; right: var(--sp-8); background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--sp-3) var(--sp-4); box-shadow: var(--shadow-md); display: flex; align-items: center; gap: var(--sp-2); z-index: 50; opacity: 0; transform: translateY(-10px); transition: all 0.4s var(--ease-out); pointer-events: none; }
+.xp-counter.visible { opacity: 1; transform: translateY(0); }
+.xp-counter .ph { font-size: 20px; color: var(--warning); }
+.xp-counter-value { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.xp-counter-label { font-size: 0.75rem; color: var(--text-muted); }
+
+.debug-inspector { position: fixed; bottom: var(--sp-4); right: var(--sp-4); width: 380px; max-height: 400px; background: #0D1117; border: 1px solid #21262D; border-radius: var(--r-xl); box-shadow: var(--shadow-xl); z-index: 100; display: none; flex-direction: column; overflow: hidden; font-family: var(--font-mono); font-size: 0.75rem; }
+.debug-inspector.open { display: flex; }
+.debug-header { display: flex; align-items: center; justify-content: space-between; padding: var(--sp-3) var(--sp-4); background: #161B22; border-bottom: 1px solid #21262D; }
+.debug-title { font-size: 0.8125rem; font-weight: 600; color: #F1F5F9; display: flex; align-items: center; gap: var(--sp-2); }
+.debug-title .dot { width: 8px; height: 8px; background: var(--success); border-radius: var(--r-full); animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.debug-body { flex: 1; overflow-y: auto; padding: var(--sp-3); }
+.debug-item { padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); margin-bottom: 4px; background: #161B22; border: 1px solid #21262D; }
+.debug-item-time { color: #94A3B8; font-size: 0.6875rem; }
+.debug-item-type { color: var(--primary); font-weight: 600; font-size: 0.75rem; margin: 2px 0; }
+.debug-item-meta { color: #94A3B8; font-size: 0.6875rem; }
+.debug-footer { padding: var(--sp-3) var(--sp-4); background: #161B22; border-top: 1px solid #21262D; display: flex; justify-content: space-between; font-size: 0.6875rem; color: #94A3B8; }
+.debug-toggle { position: fixed; bottom: var(--sp-4); right: var(--sp-4); width: 40px; height: 40px; border-radius: var(--r-full); background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: var(--shadow-lg); z-index: 99; border: none; transition: transform var(--dur-micro); }
+.debug-toggle:hover { transform: scale(1.05); }
+
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-xl); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-btn { display: flex; }
+  .lesson-layout { grid-template-columns: 1fr; }
+  .lesson-map { position: static; }
+  .practice-workspace { grid-template-columns: 1fr; }
+  .practice-support-rail { position: static; }
+  .debug-inspector { width: calc(100% - var(--sp-8)); right: var(--sp-4); left: var(--sp-4); }
+  .xp-counter { right: var(--sp-4); top: 70px; }
+  .tab-row-with-progress { flex-direction: column; align-items: flex-start; }
+  .global-progress { width: 100%; justify-content: flex-end; }
+}
+@media (max-width: 768px) {
+  .page { padding: var(--sp-4); }
+  .topbar { padding: 0 var(--sp-4); }
+  .topbar-search { display: none; }
+  .predict-options { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <circle cx="14" cy="14" r="12" fill="url(#brandGrad)"/>
+        <path d="M9 14C9 11.5 11 9.5 14 9.5C17 9.5 19 11.5 19 14C19 16.5 17 18.5 14 18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M11 14C11 12.5 12.5 11 14 11C15.5 11 17 12.5 17 14" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+      </svg>
+      <span class="sidebar-brand-text">Helix</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Learn</div>
+      <a href="qwen_main.html" class="nav-item"><i data-lucide="home" class="nav-icon" aria-hidden="true"></i>Home</a>
+      <a href="qwen_learn.html" class="nav-item"><i data-lucide="book-open" class="nav-icon" aria-hidden="true"></i>Learn</a>
+      <button class="nav-item active" data-page="practice" aria-current="page"><i data-lucide="target" class="nav-icon" aria-hidden="true"></i>Practice</button>
+      <a href="qwen_main.html#projects" class="nav-item"><i data-lucide="layout-grid" class="nav-icon" aria-hidden="true"></i>Projects</a>
+      <a href="qwen_main.html#sandbox" class="nav-item"><i data-lucide="code-2" class="nav-icon" aria-hidden="true"></i>Sandbox</a>
+      <div class="sidebar-section-label">Insights</div>
+      <a href="qwen_main.html#analytics" class="nav-item"><i data-lucide="bar-chart-3" class="nav-icon" aria-hidden="true"></i>Analytics</a>
+      <a href="qwen_main.html#community" class="nav-item"><i data-lucide="users" class="nav-icon" aria-hidden="true"></i>Community</a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="qwen_main.html#profile" class="nav-item"><i data-lucide="user" class="nav-icon" aria-hidden="true"></i>Profile</a>
+      <a href="qwen_main.html#settings" class="nav-item"><i data-lucide="settings" class="nav-icon" aria-hidden="true"></i>Settings</a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme"><i data-lucide="palette" class="util-icon" aria-hidden="true"></i>Theme</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar" role="banner">
+      <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu"><i data-lucide="menu" class="util-icon" aria-hidden="true"></i></button>
+      <div class="topbar-search" role="search"><i data-lucide="search" class="util-icon" aria-hidden="true"></i><input type="text" id="topbar-search-input" placeholder="Search concepts, courses, or skills..." aria-label="Search" oninput="handlePracticeSearch(this.value)"><span class="search-kbd">K</span></div>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="showStreakPopover()" aria-label="Streak: 12 days"><i data-lucide="flame" class="util-icon" style="color: var(--warning);" aria-hidden="true"></i><span style="font-size: 0.75rem; font-weight: 600; margin-left: 2px;">12</span></button>
+        <button class="icon-btn" onclick="showNotificationPopover()" aria-label="Notifications"><i data-lucide="bell" class="util-icon" aria-hidden="true"></i><span class="badge-dot" aria-hidden="true"></span></button>
+        <div class="avatar" role="img" aria-label="User avatar" onclick="window.location.href='qwen_main.html#profile'" style="cursor: pointer;">A</div>
+      </div>
+    </header>
+
+    <div class="page">
+      <div class="practice-header">
+        <nav class="practice-breadcrumb" aria-label="Breadcrumb">
+          <a href="qwen_learn.html">Learn</a><i data-lucide="chevron-right" class="util-icon" aria-hidden="true"></i>
+          <a href="qwen_learn.html?course=js-fundamentals" id="breadcrumb-course">JavaScript Fundamentals</a><i data-lucide="chevron-right" class="util-icon" aria-hidden="true"></i>
+          <span style="color: var(--text-primary);" id="breadcrumb-concept">Variables</span>
+        </nav>
+        <h1 class="practice-title">Variables — Practice Workspace</h1>
+        <p class="practice-subtitle">
+          <span id="header-current-label">Lesson 1 of 10</span>
+          <span class="badge badge-primary" id="header-activity-badge">Theory</span>
+          <span class="badge badge-warning" id="header-xp-badge" style="margin-left: 4px;">0 XP</span>
+        </p>
+      </div>
+
+      <div class="tab-row-with-progress">
+        <div class="tab-row" role="tablist" aria-label="Primary learning tabs">
+          <button class="tab active" data-tab="lesson" onclick="switchPrimaryTab('lesson', this)" role="tab" aria-selected="true"><i data-lucide="book-open" class="util-icon" aria-hidden="true"></i>Lesson</button>
+          <button class="tab" data-tab="practice" onclick="switchPrimaryTab('practice', this)" role="tab" aria-selected="false"><i data-lucide="target" class="util-icon" aria-hidden="true"></i>Practice</button>
+          <button class="tab" data-tab="notes" onclick="switchPrimaryTab('notes', this)" role="tab" aria-selected="false"><i data-lucide="file-text" class="util-icon" aria-hidden="true"></i>Notes</button>
+        </div>
+        <div class="global-progress" aria-label="Concept progress">
+          <div class="global-progress-info">
+            <div class="global-progress-count" id="global-progress-count">0 / 10 lessons</div>
+            <div class="global-progress-label" id="global-progress-label">0% complete</div>
+          </div>
+          <div class="global-progress-bar">
+            <div class="global-progress-fill" id="global-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LESSON TAB -->
+      <div class="tab-panel active" id="panel-lesson" role="tabpanel">
+        <div class="lesson-layout">
+          <div class="lesson-map">
+            <div class="lesson-map-header"><div class="lesson-map-title">Lesson Map</div></div>
+            <div class="lesson-map-current">Current: <strong id="lesson-map-current-title">Introduction</strong></div>
+            <div class="lesson-map-list" id="lesson-map-list"></div>
+          </div>
+          <div class="overview-panel">
+            <div class="overview-header">
+              <div class="overview-label">Concept Overview</div>
+              <div class="overview-title" id="overview-title">Introduction</div>
+            </div>
+            <div class="overview-desc" id="overview-desc"></div>
+            <div class="overview-example">
+              <div class="overview-example-label">Example</div>
+              <code id="overview-code"></code>
+            </div>
+            <div class="overview-illustration">
+              <div style="text-align: center;">
+                <i class="ph ph-brackets-curly" style="font-size: 48px; color: var(--primary); margin-bottom: var(--sp-3);" aria-hidden="true"></i>
+                <div style="font-size: 0.875rem; color: var(--text-muted);">Variable declaration visual</div>
+              </div>
+            </div>
+          </div>
+          <div class="try-yourself">
+            <div class="try-yourself-header">
+              <div class="try-yourself-title">Try Yourself</div>
+              <div class="try-yourself-subtitle">Quick self-check before moving on</div>
+            </div>
+            <div class="try-checklist" id="try-checklist"></div>
+            <div class="try-progress">
+              <div class="try-progress-bar"><div class="try-progress-fill" id="try-progress-fill" style="width: 0%;"></div></div>
+              <div class="try-progress-text" id="try-progress-text">0 of 4 completed</div>
+            </div>
+            <div style="margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--border);">
+              <button class="btn btn-primary btn-sm w-full" id="begin-activity-btn" onclick="beginActivity()" style="width: 100%;">
+                Begin Activity
+                <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRACTICE TAB -->
+      <div class="tab-panel" id="panel-practice" role="tabpanel">
+        <div class="practice-workspace">
+          <div class="practice-main">
+            <div class="practice-activity-header">
+              <div class="practice-activity-title" id="practice-activity-title">Introduction</div>
+              <div class="practice-activity-type" id="practice-activity-type"><i class="ph ph-book-open-text" aria-hidden="true"></i><span id="practice-activity-type-label">Theory</span></div>
+            </div>
+            <div id="activity-content"></div>
+            <div id="feedback-area"></div>
+            <div class="next-bar">
+              <div class="next-bar-info"><span id="next-bar-current">Lesson 1 of 10</span><span style="margin: 0 8px; color: var(--border-strong);">·</span><span id="next-bar-completed">0 completed</span></div>
+              <div style="display: flex; gap: var(--sp-2);">
+                <button class="btn btn-secondary btn-sm" id="btn-prev-lesson" onclick="goToPrevLesson()"><i data-lucide="arrow-left" class="util-icon" aria-hidden="true"></i>Previous</button>
+                <button class="btn btn-primary btn-sm" id="btn-next-lesson" onclick="goToNextLesson()">Next Lesson <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="practice-support-rail">
+            <div class="support-section">
+              <div class="support-section-header">
+                <div class="assistant-avatar-sm">H</div>
+                <div class="support-section-title" style="flex: 1;">Helix AI Chat</div>
+                <button id="btn-gemini-key" title="Configure Gemini API Key" onclick="toggleApiKeyModal()" style="font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: var(--r-full); background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer;">
+                  <span id="key-indicator-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #94A3B8; display: inline-block;"></span>
+                  <span>Gemini</span>
+                </button>
+              </div>
+              <div id="chat-personalization-pill" style="display: none; margin-bottom: var(--sp-2); padding: 6px 10px; border-radius: var(--r-md); background: var(--primary-light); border: 1px solid var(--primary-dark-light); font-size: 0.75rem; color: var(--primary); line-height: 1.4;">
+                <div style="font-weight: 600; display: flex; align-items: center; gap: 4px;"><i class="ph ph-target" style="font-size: 14px;"></i><span id="pill-title">Personalized Path</span></div>
+                <div id="pill-rationale" style="font-size: 0.6875rem; color: var(--text-secondary); margin-top: 2px;"></div>
+              </div>
+              <div class="chat-messages-box" id="chat-messages-container" aria-label="Tutor chat history"></div>
+              <div class="chat-quick-chips" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: var(--sp-2);">
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Explain this question to me')">💡 Explain</button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Why is my code wrong?')">🔍 Debug</button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Give me a hint for this challenge')">🎯 Hint</button>
+                <button type="button" class="chat-chip" onclick="sendQuickPrompt('Show an advanced solution')">⚡ Advanced</button>
+              </div>
+              <div class="chat-input-bar">
+                <input id="chat-user-input" class="chat-input-field" type="text" placeholder="Ask about this question..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+                <button id="chat-send-btn" class="chat-send-btn" onclick="sendChatMessage()" aria-label="Send message">
+                  <i class="ph ph-paper-plane-right" style="font-size: 14px;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="support-section">
+              <div class="support-section-header"><i data-lucide="lightbulb" class="util-icon" style="color: var(--warning);" aria-hidden="true"></i><div class="support-section-title">Hints</div></div>
+              <div class="support-section-message" id="hints-available-text">3 hints available</div>
+              <div id="hints-container"></div>
+            </div>
+            <div class="support-section">
+              <div class="support-section-header"><i data-lucide="star" class="util-icon" style="color: var(--warning);" aria-hidden="true"></i><div class="support-section-title">Reward</div></div>
+              <div style="display: flex; align-items: center; gap: var(--sp-2);"><span style="font-size: 0.875rem; font-weight: 600;">+5 XP</span><span style="font-size: 0.75rem; color: var(--text-muted);">on completion</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES TAB -->
+      <div class="tab-panel" id="panel-notes" role="tabpanel">
+        <div class="notes-panel">
+          <div class="notes-header"><div class="notes-title">My Notes</div><button class="btn btn-secondary btn-sm" onclick="exportNotes()"><i data-lucide="download" class="util-icon" aria-hidden="true"></i>Export</button></div>
+          <div class="notes-context"><i data-lucide="book-open" class="util-icon" aria-hidden="true"></i><span id="notes-context-text">JavaScript Fundamentals → Variables → Introduction</span></div>
+          <textarea class="notes-editor" id="notes-editor" placeholder="Write your notes here..." aria-label="Notes editor"></textarea>
+          <div class="notes-footer"><button class="btn btn-ghost btn-sm" onclick="clearNotes()">Clear</button><button class="btn btn-primary btn-sm" onclick="saveNotes()"><i data-lucide="save" class="util-icon" aria-hidden="true"></i>Save Notes</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- XP Counter -->
+<div class="xp-counter" id="xp-counter">
+  <i class="ph ph-star" aria-hidden="true"></i>
+  <div>
+    <div class="xp-counter-value" id="xp-counter-value">+5 XP</div>
+    <div class="xp-counter-label">Lesson Complete</div>
+  </div>
+</div>
+
+<!-- Completion Overlay -->
+<div class="completion-overlay" id="completion-overlay" role="dialog" aria-modal="true" aria-label="Completion">
+  <div class="completion-modal" id="completion-modal"></div>
+</div>
+
+<!-- Gemini API Key Modal -->
+<div class="completion-overlay" id="gemini-key-modal" role="dialog" aria-modal="true" aria-label="Gemini API Key Configuration" style="display: none;">
+  <div class="completion-modal" style="max-width: 440px; text-align: left; padding: var(--sp-6);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-3);">
+      <div style="display: flex; align-items: center; gap: var(--sp-2);">
+        <div class="assistant-avatar-sm" style="width: 26px; height: 26px; font-size: 0.75rem;">G</div>
+        <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Gemini API Key</h3>
+      </div>
+      <button onclick="toggleApiKeyModal()" style="color: var(--text-muted); cursor: pointer; padding: 4px;"><i class="ph ph-x" style="font-size: 18px;"></i></button>
+    </div>
+    <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: var(--sp-4); line-height: 1.5;">
+      Enter your Google Gemini API key to activate conversational AI assistance, automated question-level competency evaluation, and adaptive next-question personalization.
+    </p>
+    <div style="margin-bottom: var(--sp-4);">
+      <label style="display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Gemini API Key</label>
+      <input type="password" id="gemini-key-input" placeholder="AIzaSy..." style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--r-md); padding: 8px 12px; font-family: var(--font-mono); font-size: 0.8125rem; color: var(--text-primary); outline: none;">
+    </div>
+    <div id="gemini-key-status" style="display: none; margin-bottom: var(--sp-4); font-size: 0.75rem; padding: 6px 10px; border-radius: var(--r-md); line-height: 1.4;"></div>
+    <div style="display: flex; gap: var(--sp-2); justify-content: flex-end;">
+      <button class="btn btn-ghost btn-sm" onclick="clearApiKey()">Remove Key</button>
+      <button class="btn btn-secondary btn-sm" onclick="toggleApiKeyModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="btn-save-gemini-key" onclick="saveAndVerifyApiKey()">Verify &amp; Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Debug Inspector -->
+<button class="debug-toggle" id="debug-toggle" onclick="toggleDebug()" aria-label="Toggle debug inspector" title="Debug Inspector (Ctrl+Shift+D)"><i data-lucide="code" class="util-icon" aria-hidden="true" style="color: white;"></i></button>
+<div class="debug-inspector" id="debug-inspector" role="dialog" aria-label="Debug inspector">
+  <div class="debug-header"><div class="debug-title"><span class="dot"></span>Event Inspector</div><button onclick="toggleDebug()" aria-label="Close inspector" style="background: none; border: none; color: #94A3B8; cursor: pointer;"><i data-lucide="x" class="util-icon" aria-hidden="true"></i></button></div>
+  <div class="debug-body" id="debug-list"></div>
+  <div class="debug-footer"><span id="debug-count">0 events</span><button onclick="clearDebug()" style="background: none; border: none; color: #94A3B8; cursor: pointer; font-size: 0.6875rem;">Clear</button></div>
+</div>
+
+<script>
+// ============================================================
+// XP + TIER CONFIG
+// ============================================================
+const XP_CONFIG = { lessonCompletion: 5, conceptCompletionBonus: 15 };
+const TIER_CONFIG = [
+  { tier: 1, share: 0.10 }, { tier: 2, share: 0.15 }, { tier: 3, share: 0.20 },
+  { tier: 4, share: 0.25 }, { tier: 5, share: 0.30 }
+];
+function computeTotalCurriculumXP() { return (curriculum.lessons.length * XP_CONFIG.lessonCompletion) + XP_CONFIG.conceptCompletionBonus; }
+function computeTierThresholds(totalXP) {
+  let cumulative = 0;
+  return TIER_CONFIG.map(t => { cumulative += t.share; return { tier: t.tier, threshold: Math.round(totalXP * cumulative) }; });
+}
+function getCurrentTier(totalXP) {
+  const total = computeTotalCurriculumXP();
+  const thresholds = computeTierThresholds(total);
+  for (let i = thresholds.length - 1; i >= 0; i--) { if (totalXP >= thresholds[i].threshold) return thresholds[i].tier; }
+  return 1;
+}
+
+// ============================================================
+// ACTIVITY META
+// ============================================================
+const activityMeta = {
+  theory: { label: 'Theory', icon: 'ph-book-open-text' },
+  predict: { label: 'Predict', icon: 'ph-eye' },
+  mcq: { label: 'MCQ', icon: 'ph-list-checks' },
+  coding: { label: 'Coding', icon: 'ph-code' },
+  spot_error: { label: 'Debug', icon: 'ph-bug' }
+};
+
+// ============================================================
+// CURRICULUM DATA
+// ============================================================
+const curriculum = {
+  course: { id: 'js-fundamentals', title: 'JavaScript Fundamentals' },
+  concept: { id: 'variables', title: 'Variables' },
+  lessons: [
+    {
+      id: 1, title: 'Introduction', activityType: 'theory', status: 'available',
+      overview: { desc: 'Variables are the building blocks of every program. They let you name values so you can reuse them, change them, and reason about them. Think of a variable as a labeled box: the label is the name, the box holds the value.', code: '<span class="code-keyword">let</span> <span class="code-variable">greeting</span> <span class="code-operator">=</span> <span class="code-string">"Hello"</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">greeting</span>); <span class="code-comment">// "Hello"</span>' },
+      theory: {
+        explanation: 'A variable is a named container for storing data. Instead of remembering raw values like 42 or "Hello", you give them meaningful names like age or greeting. This makes code readable, reusable, and easier to change.',
+        whyItExists: 'Without variables, every value would be hardcoded. Changing a value used in 20 places would require 20 edits. With a variable, you change it once.',
+        syntax: { keyword: 'let', pattern: 'let name = value;', note: 'let declares a block-scoped, reassignable variable.' },
+        examples: [
+          { code: '<span class="code-keyword">let</span> <span class="code-variable">userName</span> <span class="code-operator">=</span> <span class="code-string">"Alex"</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">userName</span>);', output: 'Alex' },
+          { code: '<span class="code-keyword">let</span> <span class="code-variable">score</span> <span class="code-operator">=</span> <span class="code-number">0</span>;<br><span class="code-variable">score</span> <span class="code-operator">=</span> <span class="code-variable">score</span> <span class="code-operator">+</span> <span class="code-number">10</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">score</span>);', output: '10' }
+        ],
+        smartUsage: 'Use descriptive names. userName is better than u. totalScore is better than x. Your future self will thank you.',
+        commonMistakes: [{ bad: 'let 2ndPlace = "silver";', reason: 'Names cannot start with a number.' }, { bad: 'let class = "A";', reason: 'class is a reserved keyword.' }],
+        whenNotToUse: 'Don\'t use a variable for a value that never changes and should be protected — use const instead.',
+        checkQuestion: 'What is the main purpose of a variable?',
+        checkOptions: ['To make code run faster', 'To name and reuse values', 'To replace functions', 'To delete data'],
+        checkAnswer: 1
+      },
+      hints: ['Think about what happens when you need to use the same value multiple times.', 'Consider how naming something helps you remember what it represents.', 'Variables are like labeled containers for data.']
+    },
+    {
+      id: 2, title: 'What is a Variable?', activityType: 'predict', status: 'available',
+      overview: { desc: 'A variable is a named container that stores a value. Think of it as a labeled box where you can put data and retrieve it later using the label.', code: '<span class="code-keyword">let</span> <span class="code-variable">box</span> <span class="code-operator">=</span> <span class="code-string">"something inside"</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">box</span>);' },
+      practice: {
+        code: '<span class="code-keyword">let</span> <span class="code-variable">x</span> <span class="code-operator">=</span> <span class="code-number">10</span>;<br><span class="code-variable">x</span> <span class="code-operator">=</span> <span class="code-number">20</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">x</span>);',
+        options: ['10', '20', 'x', 'undefined'], answer: 1,
+        explanation: 'The variable x starts at 10, then is reassigned to 20. When we log it, we see the current value: 20.'
+      },
+      hints: ['Look at what happens to x after the first line.', 'The second line changes x\'s value.', 'console.log shows the current value, not the original.']
+    },
+    {
+      id: 3, title: 'Declaring Variables', activityType: 'mcq', status: 'available',
+      overview: { desc: 'In JavaScript, you declare variables using let, const, or var. Each keyword has different rules about reassignment and scope.', code: '<span class="code-keyword">let</span> <span class="code-variable">score</span> <span class="code-operator">=</span> <span class="code-number">0</span>;<br><span class="code-keyword">const</span> <span class="code-variable">PI</span> <span class="code-operator">=</span> <span class="code-number">3.14159</span>;<br><span class="code-keyword">var</span> <span class="code-variable">name</span> <span class="code-operator">=</span> <span class="code-string">"Helix"</span>;' },
+      practice: {
+        prompt: 'Which keyword should you use to declare a variable that will be reassigned later?',
+        options: ['const — for constant values', 'let — for reassignable values', 'var — legacy function-scoped', 'All of the above work the same way'],
+        answer: 1,
+        explanation: 'let is the modern keyword for variables that will be reassigned. const is for values that won\'t change, and var is legacy.'
+      },
+      hints: ['Think about which keyword allows reassignment.', 'const means constant — it can\'t change.', 'let is the modern choice for changing values.']
+    },
+    {
+      id: 4, title: 'Naming Rules', activityType: 'theory', status: 'available',
+      overview: { desc: 'Variable names must start with a letter, underscore, or dollar sign. They can\'t be reserved keywords. Use camelCase for multi-word names.', code: '<span class="code-keyword">let</span> <span class="code-variable">userName</span> <span class="code-operator">=</span> <span class="code-string">"Alex"</span>;<br><span class="code-keyword">let</span> <span class="code-variable">2name</span> <span class="code-operator">=</span> <span class="code-string">"Bad"</span>;<br><span class="code-comment">// ✗</span>' },
+      theory: {
+        explanation: 'JavaScript has strict rules about what you can name a variable. These rules exist to prevent ambiguity — the engine needs to tell names apart from keywords, numbers, and operators.',
+        whyItExists: 'Without naming rules, code like let 2 = 3 would be ambiguous. Is 2 a name or a number?',
+        syntax: { keyword: 'let', pattern: 'let validName = value;', note: 'Names must start with a letter, _, or $. After that, letters, digits, _, $ are allowed.' },
+        examples: [
+          { code: '<span class="code-keyword">let</span> <span class="code-variable">_count</span> <span class="code-operator">=</span> <span class="code-number">0</span>; <span class="code-comment">// ✓ underscore start</span><br><span class="code-keyword">let</span> <span class="code-variable">$price</span> <span class="code-operator">=</span> <span class="code-number">9.99</span>; <span class="code-comment">// ✓ dollar start</span><br><span class="code-keyword">let</span> <span class="code-variable">userName</span> <span class="code-operator">=</span> <span class="code-string">"Alex"</span>; <span class="code-comment">// ✓ camelCase</span>', output: '(all valid)' },
+          { code: '<span class="code-keyword">let</span> <span class="code-variable">2ndPlace</span> <span class="code-operator">=</span> <span class="code-string">"silver"</span>; <span class="code-comment">// ✗ starts with digit</span><br><span class="code-keyword">let</span> <span class="code-variable">my-var</span> <span class="code-operator">=</span> <span class="code-number">1</span>; <span class="code-comment">// ✗ hyphen not allowed</span><br><span class="code-keyword">let</span> <span class="code-variable">let</span> <span class="code-operator">=</span> <span class="code-number">1</span>; <span class="code-comment">// ✗ reserved keyword</span>', output: 'SyntaxError' }
+        ],
+        smartUsage: 'Use camelCase: firstName, totalScore, isActive. Be consistent. Your team will read your code more often than you write it.',
+        commonMistakes: [{ bad: 'let my variable = 1;', reason: 'Spaces are not allowed in names.' }, { bad: 'let class = "A";', reason: 'class is reserved for class declarations.' }],
+        whenNotToUse: 'Avoid single-letter names except in small loops (i, j, k). They make code unreadable at scale.',
+        checkQuestion: 'Which of these is a valid variable name?',
+        checkOptions: ['2ndPlace', 'my-variable', '_count', 'let'],
+        checkAnswer: 2
+      },
+      hints: ['Variable names can\'t start with numbers.', 'Hyphens aren\'t allowed in variable names.', 'Reserved keywords like let can\'t be used as names.']
+    },
+    {
+      id: 5, title: 'Reassigning Values', activityType: 'coding', status: 'available',
+      overview: { desc: 'A variable can change its mind. const usually can\'t.', code: '<span class="code-keyword">let</span> <span class="code-variable">score</span> <span class="code-operator">=</span> <span class="code-number">10</span>;<br><span class="code-variable">score</span> <span class="code-operator">=</span> <span class="code-variable">score</span> <span class="code-operator">+</span> <span class="code-number">10</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">score</span>);' },
+      practice: {
+        prompt: 'Create a variable called <code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8125rem;">score</code> set to 0, then reassign it to 100, and print it.',
+        starterCode: '<span class="code-comment">// Create a variable called score</span><br><br><br><span class="code-comment">// Reassign score to 100</span><br><br><br><span class="code-comment">// Print score to the console</span><br>',
+        expectedOutput: '100', solution: 'let score = 0;\nscore = 100;\nconsole.log(score);'
+      },
+      hints: ['Use let to declare score.', 'Assign 0 first, then 100.', 'Use console.log() to print.']
+    },
+    {
+      id: 6, title: 'let, const and var', activityType: 'mcq', status: 'available',
+      overview: { desc: 'let is block-scoped and reassignable. const is block-scoped but not reassignable. var is function-scoped (avoid in modern code).', code: '<span class="code-keyword">let</span> <span class="code-variable">x</span> <span class="code-operator">=</span> <span class="code-number">1</span>; <span class="code-comment">// modern</span><br><span class="code-keyword">const</span> <span class="code-variable">y</span> <span class="code-operator">=</span> <span class="code-number">2</span>; <span class="code-comment">// constant</span><br><span class="code-keyword">var</span> <span class="code-variable">z</span> <span class="code-operator">=</span> <span class="code-number">3</span>; <span class="code-comment">// legacy</span>' },
+      practice: {
+        prompt: 'What happens if you try to reassign a const variable?',
+        options: ['It works fine', 'It throws a TypeError', 'It silently fails', 'It creates a new variable'],
+        answer: 1,
+        explanation: 'Reassigning a const throws a TypeError: "Assignment to constant variable." This is JavaScript\'s way of protecting constants.'
+      },
+      hints: ['const means the binding can\'t change.', 'JavaScript protects constants with errors.', 'Try to think about what "constant" means.']
+    },
+    {
+      id: 7, title: 'Try It Yourself', activityType: 'coding', status: 'available',
+      overview: { desc: 'Time to practice! Apply what you\'ve learned about declaring variables in real code.', code: '<span class="code-comment">// Your turn!</span><br><span class="code-keyword">let</span> <span class="code-variable">name</span> <span class="code-operator">=</span> <span class="code-string">"Alex"</span>;<br><span class="code-keyword">let</span> <span class="code-variable">age</span> <span class="code-operator">=</span> <span class="code-number">21</span>;<br><span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">name</span>, <span class="code-variable">age</span>);' },
+      practice: {
+        prompt: 'Create variables for your name and age, then print both to the console.',
+        starterCode: '<span class="code-comment">// Create a variable for your name</span><br><br><br><span class="code-comment">// Create a variable for your age</span><br><br><br><span class="code-comment">// Print both to the console</span><br>',
+        expectedOutput: null, solution: 'let name = "Alex";\nlet age = 21;\nconsole.log(name, age);'
+      },
+      hints: ['Use let for both variables.', 'Choose meaningful names.', 'Use console.log() with multiple arguments.']
+    },
+    {
+      id: 8, title: 'Common Errors', activityType: 'spot_error', status: 'available',
+      overview: { desc: 'Learn about the most common mistakes when working with variables and how to fix them.', code: '<span class="code-function">console</span>.<span class="code-function">log</span>(<span class="code-variable">x</span>); <span class="code-comment">// ReferenceError</span><br><span class="code-keyword">let</span> <span class="code-variable">x</span> <span class="code-operator">=</span> <span class="code-number">5</span>;' },
+      practice: {
+        code: '<span class="code-keyword">const</span> <span class="code-variable">PI</span> <span class="code-operator">=</span> <span class="code-number">3.14</span>;<br><span class="code-variable">PI</span> <span class="code-operator">=</span> <span class="code-number">3.14159</span>;',
+        prompt: 'What\'s wrong with this code?',
+        options: ['PI should be declared with let instead of const', 'You can\'t reassign a const variable', 'The value 3.14159 is too precise', 'PI should be lowercase'],
+        answer: 1,
+        explanation: 'PI is declared with const, which means it can\'t be reassigned. The second line tries to change it, which throws a TypeError.'
+      },
+      hints: ['Look at the keyword used to declare PI.', 'What does const mean?', 'The second line is trying to change PI.']
+    },
+    {
+      id: 9, title: 'Mini Challenge', activityType: 'coding', status: 'available',
+      overview: { desc: 'Test your understanding with a small coding challenge.', code: '<span class="code-keyword">let</span> <span class="code-variable">a</span> <span class="code-operator">=</span> <span class="code-number">1</span>;<br><span class="code-keyword">let</span> <span class="code-variable">b</span> <span class="code-operator">=</span> <span class="code-number">2</span>;<br><span class="code-comment">// Swap a and b</span>' },
+      practice: {
+        prompt: 'Swap the values of a and b so that a becomes 2 and b becomes 1. Print both.',
+        starterCode: '<span class="code-keyword">let</span> <span class="code-variable">a</span> <span class="code-operator">=</span> <span class="code-number">1</span>;<br><span class="code-keyword">let</span> <span class="code-variable">b</span> <span class="code-operator">=</span> <span class="code-number">2</span>;<br><br><span class="code-comment">// Swap a and b here</span><br><br><br><span class="code-comment">// Print both</span><br>',
+        expectedOutput: '2 1', solution: 'let a = 1;\nlet b = 2;\nlet temp = a;\na = b;\nb = temp;\nconsole.log(a, b);'
+      },
+      hints: ['You\'ll need a temporary variable.', 'Store one value before overwriting it.', 'Use a third variable to hold the swap.']
+    },
+    {
+      id: 10, title: 'Summary', activityType: 'theory', status: 'available',
+      overview: { desc: 'Review everything you\'ve learned about variables in JavaScript.', code: '<span class="code-comment">// Key takeaways:</span><br><span class="code-comment">// 1. Variables store data</span><br><span class="code-comment">// 2. Use let for changing values</span><br><span class="code-comment">// 3. Use const for constants</span><br><span class="code-comment">// 4. Follow naming conventions</span>' },
+      theory: {
+        explanation: 'You\'ve learned the foundation of variables in JavaScript. You can declare them with let, const, or var. You understand naming rules, reassignment, and common errors.',
+        whyItExists: 'Variables are the first step toward writing real programs. Every function, loop, and data structure you\'ll learn next builds on this foundation.',
+        syntax: { keyword: 'let/const', pattern: 'let name = value; const NAME = value;', note: 'Prefer const by default. Use let when you need to reassign. Avoid var.' },
+        examples: [{ code: '<span class="code-keyword">const</span> <span class="code-variable">MAX_RETRIES</span> <span class="code-operator">=</span> <span class="code-number">3</span>;<br><span class="code-keyword">let</span> <span class="code-variable">attempt</span> <span class="code-operator">=</span> <span class="code-number">0</span>;<br><span class="code-variable">attempt</span><span class="code-operator">++</span>;<br><span class="code-keyword">if</span> (<span class="code-variable">attempt</span> <span class="code-operator"><=</span> <span class="code-variable">MAX_RETRIES</span>) { <span class="code-comment">// retry</span> }', output: '(attempt becomes 1)' }],
+        smartUsage: 'Default to const. Reach for let only when you know the value will change. This makes your intent clear and prevents accidental reassignment.',
+        commonMistakes: [{ bad: 'var x = 1; var x = 2;', reason: 'var allows redeclaration, which causes subtle bugs.' }, { bad: 'const user = {}; user = {};', reason: 'You can\'t reassign const, but you CAN mutate the object it points to.' }],
+        whenNotToUse: 'Don\'t use var in modern code. It has function scope and hoisting behavior that causes confusion.',
+        checkQuestion: 'Which statement best summarizes when to use const?',
+        checkOptions: ['Use const for all variables', 'Use const when the value won\'t change after initialization', 'Use const only for numbers', 'Use const instead of functions'],
+        checkAnswer: 1
+      },
+      hints: ['Think about what "constant" means.', 'const doesn\'t mean the value can never change (objects can mutate), but the binding can\'t be reassigned.', 'It\'s about intent and safety.']
+    }
+  ]
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  selectedLesson: 1,
+  completedLessons: [],
+  lessonActivityState: {},
+  totalXP: 0,
+  conceptCompleted: false,
+  attemptId: null,
+  hintsUsed: 0,
+  session: { id: 'sess_' + Math.random().toString(36).slice(2, 10), learnerId: 'learner_alex_001' },
+  sequence: { id: 'seq_' + Math.random().toString(36).slice(2, 8), counter: 0 },
+  notes: {},
+  chatHistories: {},
+  personalizedNextLesson: null,
+  personalizationRationale: '',
+  userLevel: 'Beginner',
+  learnerType: 'Manual Learner',
+  submissionsCount: 0,
+  retriesCount: 0
+};
+
+// ============================================================
+// EVENT SYSTEM
+// ============================================================
+const eventCollector = [];
+const EVENT_TYPES = {
+  practice_page_opened: 'practice_page_opened', primary_tab_changed: 'primary_tab_changed',
+  lesson_opened: 'lesson_opened', lesson_selected: 'lesson_selected', lesson_started: 'lesson_started',
+  lesson_completed: 'lesson_completed', next_lesson_selected: 'next_lesson_selected',
+  prev_lesson_selected: 'prev_lesson_selected',
+  activity_started: 'activity_started', activity_attempted: 'activity_attempted',
+  activity_completed: 'activity_completed', activity_reviewed: 'activity_reviewed',
+  theory_viewed: 'theory_viewed', theory_completed: 'theory_completed',
+  prediction_submitted: 'prediction_submitted', prediction_correct: 'prediction_correct', prediction_incorrect: 'prediction_incorrect',
+  mcq_answered: 'mcq_answered',
+  code_changed: 'code_changed', code_executed: 'code_executed',
+  code_execution_success: 'code_execution_success', code_execution_error: 'code_execution_error',
+  hint_requested: 'hint_requested', assistant_action_selected: 'assistant_action_selected',
+  note_created: 'note_created', note_updated: 'note_updated', retry_started: 'retry_started',
+  xp_earned: 'xp_earned', concept_completed: 'concept_completed'
+};
+
+function emitEvent(eventType, payload = {}) {
+  state.sequence.counter++;
+  const event = {
+    event_id: 'evt_' + Date.now().toString(36) + '_' + state.sequence.counter,
+    event_type: eventType,
+    learner_id: state.session.learnerId, session_id: state.session.id,
+    course_id: curriculum.course.id, concept_id: curriculum.concept.id,
+    lesson_id: 'lesson_' + state.selectedLesson, practice_id: state.attemptId,
+    timestamp: new Date().toISOString(), source: 'helix_web_practice', view: 'practice',
+    sequence_id: state.sequence.id, attempt_id: state.attemptId, step_number: state.sequence.counter,
+    payload
+  };
+  eventCollector.push(event);
+  renderDebug();
+  console.log('[Helix]', eventType, payload);
+}
+
+// ============================================================
+// PROGRESS HELPERS
+// ============================================================
+function getCompletedCount() { return state.completedLessons.length; }
+function getTotalLessons() { return curriculum.lessons.length; }
+function getCompletionPercent() { return Math.round((getCompletedCount() / getTotalLessons()) * 100); }
+function isLessonCompleted(id) { return state.completedLessons.includes(id); }
+
+// ============================================================
+// RENDERING
+// ============================================================
+function renderLessonMap() {
+  const list = document.getElementById('lesson-map-list');
+  list.innerHTML = curriculum.lessons.map(l => {
+    const completed = isLessonCompleted(l.id);
+    const isActive = l.id === state.selectedLesson;
+    const isPersonalized = l.id === state.personalizedNextLesson;
+    const statusClass = completed ? 'completed' : isActive ? 'active' : l.status === 'locked' ? 'locked' : '';
+    const numContent = completed ? '<i data-lucide="check" class="util-icon" style="color: white; width: 12px; height: 12px;" aria-hidden="true"></i>' : l.status === 'locked' ? '<i data-lucide="lock" class="util-icon" style="width: 12px; height: 12px;" aria-hidden="true"></i>' : (isPersonalized ? '<i class="ph ph-sparkle" style="font-size: 13px; color: var(--primary);"></i>' : '');
+    const activity = activityMeta[l.activityType] || activityMeta.theory;
+    const personalizedBadge = isPersonalized ? `<span style="font-size: 0.65rem; background: var(--primary); color: white; padding: 1px 6px; border-radius: 99px; margin-left: 4px; font-weight: 600;" title="Recommended next question by Gemini ML evaluation">Next ✨</span>` : '';
+    return `<div class="lesson-map-item ${statusClass}" data-lesson="${l.id}" onclick="selectLesson(${l.id})" tabindex="0" role="button" aria-label="${l.title} - ${activity.label}"><div class="lesson-status">${numContent}</div><div class="lesson-title">${l.title}${personalizedBadge}</div><div class="lesson-activity" title="${activity.label}"><i class="ph ${activity.icon}" style="font-size: 10px;" aria-hidden="true"></i></div><button class="begin-activity-btn" onclick="event.stopPropagation(); beginActivity()">Begin <i data-lucide="arrow-right" class="util-icon" style="width: 10px; height: 10px;" aria-hidden="true"></i></button></div>`;
+  }).join('');
+  lucide.createIcons();
+}
+
+function renderProgress() {
+  const completed = getCompletedCount();
+  const total = getTotalLessons();
+  const pct = getCompletionPercent();
+  document.getElementById('global-progress-count').textContent = `${completed} / ${total} lessons`;
+  document.getElementById('global-progress-label').textContent = `${pct}% complete`;
+  document.getElementById('global-progress-fill').style.width = pct + '%';
+  document.getElementById('header-xp-badge').textContent = `${state.totalXP} XP`;
+}
+
+function renderCurrentLabel() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  if (!lesson) return;
+  const activity = activityMeta[lesson.activityType] || activityMeta.theory;
+  document.getElementById('header-current-label').textContent = `Lesson ${state.selectedLesson} of ${getTotalLessons()}`;
+  document.getElementById('header-activity-badge').textContent = activity.label;
+  document.getElementById('lesson-map-current-title').textContent = lesson.title;
+  document.getElementById('next-bar-current').textContent = `Lesson ${state.selectedLesson} of ${getTotalLessons()}`;
+  document.getElementById('next-bar-completed').textContent = `${getCompletedCount()} completed`;
+  document.getElementById('notes-context-text').textContent = `${curriculum.course.title} → ${curriculum.concept.title} → ${lesson.title}`;
+}
+
+function updateOverview(lessonId) {
+  const lesson = curriculum.lessons.find(l => l.id === lessonId);
+  if (!lesson || !lesson.overview) return;
+  document.getElementById('overview-title').textContent = lesson.title;
+  document.getElementById('overview-desc').innerHTML = lesson.overview.desc.replace(/\b(let|const|var)\b/g, m => `<code style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.875rem;">${m}</code>`);
+  document.getElementById('overview-code').innerHTML = lesson.overview.code;
+}
+
+function renderTryChecklist() {
+  const items = ['Identify a variable', 'Create one variable', 'Change its value', 'Read its value'];
+  const list = document.getElementById('try-checklist');
+  list.innerHTML = items.map((item, idx) => `<div class="try-item" onclick="this.classList.toggle('checked'); updateTryProgress();" tabindex="0" role="checkbox" aria-checked="false"><div class="try-checkbox" aria-hidden="true"></div><div class="try-label">${item}</div></div>`).join('');
+}
+
+function updateTryProgress() {
+  const checked = document.querySelectorAll('.try-item.checked').length;
+  const total = 4;
+  const pct = (checked / total) * 100;
+  document.getElementById('try-progress-fill').style.width = pct + '%';
+  document.getElementById('try-progress-text').textContent = `${checked} of ${total} completed`;
+}
+
+function renderHints() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  if (!lesson || !lesson.hints) return;
+  const container = document.getElementById('hints-container');
+  const hintsHTML = lesson.hints.map((hint, idx) => {
+    const unlocked = idx <= state.hintsUsed;
+    return `<div class="hint-item ${unlocked ? '' : 'locked'}" id="hint-${idx + 1}"><div class="hint-header ${unlocked ? '' : 'locked'}" onclick="${unlocked ? `toggleHint(${idx + 1})` : ''}"><div class="hint-number"><span class="hint-num-badge">${idx + 1}</span><span>${unlocked ? hint : 'Locked'}</span></div>${unlocked ? '<i data-lucide="chevron-down" class="hint-chevron util-icon" aria-hidden="true"></i>' : '<i data-lucide="lock" class="util-icon" aria-hidden="true"></i>'}</div>${unlocked ? `<div class="hint-body">${hint}</div>` : ''}</div>`;
+  }).join('');
+  container.innerHTML = hintsHTML;
+  document.getElementById('hints-available-text').textContent = `${lesson.hints.length} hints available (${state.hintsUsed} used)`;
+  lucide.createIcons();
+}
+
+// ============================================================
+// THEORY RENDERER
+// ============================================================
+function renderTheory(lesson, reviewState) {
+  const t = lesson.theory;
+  if (!t) return '';
+  let html = '';
+  html += `<div class="theory-section"><div class="theory-section-label">Concept</div><div class="theory-section-text">${t.explanation}</div></div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">Why it exists</div><div class="theory-section-text">${t.whyItExists}</div></div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">Syntax</div><div class="theory-code-block"><span class="code-keyword">${t.syntax.keyword}</span> <span class="code-variable">name</span> <span class="code-operator">=</span> <span class="code-variable">value</span>;</div><div class="theory-section-text" style="font-size: 0.875rem;">${t.syntax.note}</div></div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">Examples</div>`;
+  t.examples.forEach((ex, i) => {
+    html += `<div class="theory-code-block" id="theory-example-${i}">${ex.code}</div>`;
+    html += `<button class="theory-run-btn" onclick="runTheoryExample(${i}, '${ex.output.replace(/'/g, "\\'")}')"><i class="ph ph-play" style="font-size: 12px;" aria-hidden="true"></i> Run Example</button>`;
+    html += `<div class="theory-output" id="theory-output-${i}">→ ${ex.output}</div>`;
+  });
+  html += `</div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">Smart usage</div><div class="theory-good"><strong>✓ ${t.smartUsage}</strong></div></div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">Common mistakes</div>`;
+  t.commonMistakes.forEach(m => {
+    html += `<div class="theory-mistake"><strong>✗</strong> <code style="font-family: var(--font-mono); font-size: 0.8125rem;">${m.bad}</code><br><span style="font-size: 0.8125rem; margin-top: 4px; display: block;">${m.reason}</span></div>`;
+  });
+  html += `</div>`;
+  html += `<div class="theory-section"><div class="theory-section-label">When not to use</div><div class="theory-section-text">${t.whenNotToUse}</div></div>`;
+
+  const isReview = reviewState && reviewState.completed;
+  if (isReview) {
+    html += `<div class="theory-check"><div class="theory-check-title"><i data-lucide="check-circle-2" class="util-icon" aria-hidden="true"></i>Check yourself — completed</div><div class="theory-check-question">${t.checkQuestion}</div><div class="theory-check-options">`;
+    t.checkOptions.forEach((opt, idx) => {
+      let cls = 'theory-check-option disabled';
+      if (idx === t.checkAnswer) cls += ' correct';
+      else if (idx === reviewState.selectedOption && idx !== t.checkAnswer) cls += ' incorrect';
+      html += `<div class="${cls}"><div class="theory-check-radio" aria-hidden="true"></div><span>${opt}</span></div>`;
+    });
+    html += `</div><div class="feedback-card ${reviewState.correct ? 'feedback-success' : 'feedback-error'}" style="margin-top: var(--sp-3); margin-bottom: 0;"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${reviewState.correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${reviewState.correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${reviewState.correct ? 'Correct!' : 'Not quite.'}</strong> ${reviewState.correct ? 'You understand this concept.' : 'Review the explanation above.'}</div></div></div>`;
+  } else {
+    html += `<div class="theory-check"><div class="theory-check-title"><i data-lucide="check-circle-2" class="util-icon" aria-hidden="true"></i>Check yourself</div><div class="theory-check-question">${t.checkQuestion}</div><div class="theory-check-options" id="theory-check-options">${t.checkOptions.map((opt, idx) => `<div class="theory-check-option" onclick="selectTheoryCheck(this, ${idx})" tabindex="0" role="radio" aria-checked="false"><div class="theory-check-radio" aria-hidden="true"></div><span>${opt}</span></div>`).join('')}</div><button class="btn btn-primary btn-sm" id="submit-theory-check" onclick="submitTheoryCheck(${t.checkAnswer})" disabled style="opacity: 0.5;">Check answer</button><div id="theory-check-feedback"></div></div>`;
+  }
+  return html;
+}
+
+let theoryCheckSelected = null;
+function selectTheoryCheck(el, idx) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.theory-check-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  theoryCheckSelected = idx;
+  document.getElementById('submit-theory-check').disabled = false;
+  document.getElementById('submit-theory-check').style.opacity = '1';
+}
+
+function submitTheoryCheck(correctIdx) {
+  if (theoryCheckSelected === null) return;
+  const options = document.querySelectorAll('.theory-check-option');
+  options.forEach((opt, idx) => {
+    opt.classList.add('disabled');
+    if (idx === correctIdx) opt.classList.add('correct');
+    else if (idx === theoryCheckSelected) opt.classList.add('incorrect');
+  });
+  document.getElementById('submit-theory-check').style.display = 'none';
+  const correct = theoryCheckSelected === correctIdx;
+  const feedback = document.getElementById('theory-check-feedback');
+  feedback.innerHTML = `<div class="feedback-card ${correct ? 'feedback-success' : 'feedback-error'}" style="margin-top: var(--sp-3); margin-bottom: 0;"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${correct ? 'Correct!' : 'Not quite.'}</strong> ${correct ? 'You understand this concept.' : 'Review the explanation above and try the activity.'}</div></div>`;
+  emitEvent(EVENT_TYPES.theory_completed, { correct });
+  state.lessonActivityState[state.selectedLesson] = {
+    completed: true, correct, selectedOption: theoryCheckSelected,
+    activityType: 'theory', timestamp: Date.now()
+  };
+  if (correct) completeLesson();
+  theoryCheckSelected = null;
+}
+
+function runTheoryExample(idx, output) {
+  const out = document.getElementById('theory-output-' + idx);
+  out.classList.add('visible');
+  anime({ targets: out, opacity: [0, 1], translateY: [-4, 0], duration: 200, easing: 'easeOutCubic' });
+}
+
+// ============================================================
+// ACTIVITY RENDERERS
+// ============================================================
+function renderActivity() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  if (!lesson) return;
+  const activity = activityMeta[lesson.activityType] || activityMeta.theory;
+  const content = document.getElementById('activity-content');
+  const feedback = document.getElementById('feedback-area');
+  feedback.innerHTML = '';
+
+  document.getElementById('practice-activity-title').textContent = lesson.title;
+  document.getElementById('practice-activity-type-label').textContent = activity.label;
+  const typeIcon = document.querySelector('#practice-activity-type .ph');
+  if (typeIcon) typeIcon.className = 'ph ' + activity.icon;
+
+  state.attemptId = 'att_' + Date.now().toString(36);
+  state.hintsUsed = 0;
+
+  const savedState = state.lessonActivityState[state.selectedLesson];
+  const isReview = savedState && savedState.completed;
+
+  let reviewBanner = '';
+  if (isReview) {
+    reviewBanner = `<div class="review-banner"><i class="ph ph-check-circle" aria-hidden="true"></i><span>Reviewing completed activity — your answer and feedback are preserved</span></div>`;
+  }
+
+  switch (lesson.activityType) {
+    case 'theory':
+      content.innerHTML = reviewBanner + renderTheory(lesson, savedState);
+      emitEvent(isReview ? EVENT_TYPES.activity_reviewed : EVENT_TYPES.theory_viewed, { lesson_id: state.selectedLesson, review: isReview });
+      break;
+    case 'predict':
+      content.innerHTML = reviewBanner + renderPredictActivity(lesson.practice, savedState);
+      break;
+    case 'mcq':
+      content.innerHTML = reviewBanner + renderMCQActivity(lesson.practice, savedState);
+      break;
+    case 'coding':
+      content.innerHTML = reviewBanner + renderCodingActivity(lesson.practice, savedState);
+      break;
+    case 'spot_error':
+      content.innerHTML = reviewBanner + renderDebugActivity(lesson.practice, savedState);
+      break;
+  }
+  renderHints();
+  renderChatForCurrentLesson();
+  emitEvent(isReview ? EVENT_TYPES.activity_reviewed : EVENT_TYPES.activity_started, { lesson_id: state.selectedLesson, activity_type: lesson.activityType, review: isReview });
+}
+
+function renderPredictActivity(practice, savedState) {
+  const isReview = savedState && savedState.completed;
+  let html = `<div class="predict-code">${practice.code}</div><div class="practice-instruction">What will this code output?</div>`;
+  html += `<div class="predict-options">`;
+  practice.options.forEach((opt, idx) => {
+    let cls = 'predict-option';
+    if (isReview) {
+      cls += ' disabled';
+      if (idx === practice.answer) cls += ' correct';
+      else if (idx === savedState.selectedOption && idx !== practice.answer) cls += ' incorrect';
+      else if (idx === savedState.selectedOption) cls += ' selected';
+    }
+    html += `<div class="${cls}" ${!isReview ? `onclick="selectPredictOption(this, ${idx})" tabindex="0" role="radio" aria-checked="false"` : ''}><div class="predict-radio" aria-hidden="true"></div><span>${opt}</span></div>`;
+  });
+  html += `</div>`;
+  if (!isReview) {
+    html += `<button class="btn btn-primary" id="submit-predict" onclick="submitPrediction()" disabled style="opacity: 0.5;">Submit Prediction</button>`;
+  } else {
+    html += `<div class="feedback-card ${savedState.correct ? 'feedback-success' : 'feedback-error'}"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${savedState.correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${savedState.correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${savedState.correct ? 'Correct!' : 'Not quite.'}</strong> ${practice.explanation}</div></div>`;
+  }
+  return html;
+}
+
+function renderMCQActivity(practice, savedState) {
+  const isReview = savedState && savedState.completed;
+  let html = `<div class="practice-instruction">${practice.prompt}</div>`;
+  html += `<div class="mcq-options">`;
+  practice.options.forEach((opt, idx) => {
+    let cls = 'mcq-option';
+    if (isReview) {
+      cls += ' disabled';
+      if (idx === practice.answer) cls += ' correct';
+      else if (idx === savedState.selectedOption && idx !== practice.answer) cls += ' incorrect';
+    }
+    html += `<div class="${cls}" ${!isReview ? `onclick="selectMCQOption(this, ${idx})" tabindex="0" role="radio" aria-checked="false"` : ''}><div class="mcq-radio" aria-hidden="true"></div><span>${opt}</span></div>`;
+  });
+  html += `</div>`;
+  if (!isReview) {
+    html += `<button class="btn btn-primary" id="submit-mcq" onclick="submitMCQAnswer()" disabled style="opacity: 0.5;">Submit Answer</button>`;
+  } else {
+    html += `<div class="feedback-card ${savedState.correct ? 'feedback-success' : 'feedback-error'}"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${savedState.correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${savedState.correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${savedState.correct ? 'Correct!' : 'Not quite.'}</strong> ${practice.explanation}</div></div>`;
+  }
+  return html;
+}
+
+function renderCodingActivity(practice, savedState) {
+  const isReview = savedState && savedState.completed;
+  let html = `<div class="practice-instruction">${practice.prompt}</div>`;
+  html += `<div class="code-editor-placeholder"><div class="code-header-placeholder"><div class="code-tab-placeholder"><span class="dot"></span>script.js</div><div class="code-actions-placeholder"><button class="btn btn-ghost btn-sm" style="color: #94A3B8;" onclick="resetCode()" aria-label="Reset code"><i data-lucide="rotate-ccw" class="util-icon" aria-hidden="true"></i>Reset</button><button class="btn btn-primary btn-sm" id="run-code-btn" onclick="runCode()" aria-label="Run code" ${isReview ? 'disabled' : ''}><i data-lucide="play" class="util-icon" aria-hidden="true"></i>Run Code</button></div></div><div class="code-body-placeholder" id="code-editor" contenteditable="${isReview ? 'false' : 'true'}" spellcheck="false" role="textbox" aria-label="Code editor" aria-multiline="true" ${!isReview ? 'oninput="onCodeChange()"' : ''}>${isReview && savedState.code ? savedState.code : practice.starterCode}</div></div>`;
+  html += `<div class="output-placeholder"><div class="output-header-placeholder"><button class="output-tab-placeholder active" onclick="switchPracticeOutputTab(this, 'output')">Output</button><button class="output-tab-placeholder" onclick="switchPracticeOutputTab(this, 'console')">Console</button><button class="output-tab-placeholder" onclick="switchPracticeOutputTab(this, 'tests')">Tests</button></div><div class="output-body-placeholder" id="output-body">${isReview && savedState.output ? `<span style="color: var(--success);">${savedState.output}</span>` : '<span style="color: #94A3B8;">// Click "Run Code" to see output</span>'}</div></div>`;
+  if (isReview && savedState.feedback) {
+    html += savedState.feedback;
+  }
+  return html;
+}
+
+function renderDebugActivity(practice, savedState) {
+  const isReview = savedState && savedState.completed;
+  let html = `<div class="predict-code" style="border-left-color: var(--error);">${practice.code}</div><div class="practice-instruction">${practice.prompt}</div>`;
+  html += `<div class="debug-options">`;
+  practice.options.forEach((opt, idx) => {
+    let cls = 'debug-option';
+    if (isReview) {
+      cls += ' disabled';
+      if (idx === practice.answer) cls += ' correct';
+      else if (idx === savedState.selectedOption && idx !== practice.answer) cls += ' incorrect';
+    }
+    html += `<div class="${cls}" ${!isReview ? `onclick="selectDebugOption(this, ${idx})" tabindex="0" role="radio" aria-checked="false"` : ''}><div class="debug-radio" aria-hidden="true"></div><span>${opt}</span></div>`;
+  });
+  html += `</div>`;
+  if (!isReview) {
+    html += `<button class="btn btn-primary" id="submit-debug" onclick="submitDebugAnswer()" disabled style="opacity: 0.5;">Submit Answer</button>`;
+  } else {
+    html += `<div class="feedback-card ${savedState.correct ? 'feedback-success' : 'feedback-error'}"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${savedState.correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${savedState.correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${savedState.correct ? 'Correct!' : 'Not quite.'}</strong> ${practice.explanation}</div></div>`;
+  }
+  return html;
+}
+
+// ============================================================
+// ACTIVITY HANDLERS
+// ============================================================
+let selectedOption = null;
+
+function selectPredictOption(el, idx) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.predict-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  selectedOption = idx;
+  document.getElementById('submit-predict').disabled = false;
+  document.getElementById('submit-predict').style.opacity = '1';
+}
+
+function submitPrediction() {
+  if (selectedOption === null) return;
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  const correct = selectedOption === lesson.practice.answer;
+  const options = document.querySelectorAll('.predict-option');
+  options.forEach((opt, idx) => {
+    opt.classList.add('disabled');
+    if (idx === lesson.practice.answer) opt.classList.add('correct');
+    else if (idx === selectedOption && !correct) opt.classList.add('incorrect');
+  });
+  document.getElementById('submit-predict').style.display = 'none';
+  showFeedback(correct, lesson.practice.explanation);
+  emitEvent(EVENT_TYPES.prediction_submitted, { option: selectedOption });
+  emitEvent(correct ? EVENT_TYPES.prediction_correct : EVENT_TYPES.prediction_incorrect, { option: selectedOption });
+  state.lessonActivityState[state.selectedLesson] = {
+    completed: true, correct, selectedOption, activityType: 'predict',
+    feedback: document.getElementById('feedback-area').innerHTML, timestamp: Date.now()
+  };
+  if (correct) completeLesson();
+  selectedOption = null;
+}
+
+function selectMCQOption(el, idx) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.mcq-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  selectedOption = idx;
+  document.getElementById('submit-mcq').disabled = false;
+  document.getElementById('submit-mcq').style.opacity = '1';
+}
+
+function submitMCQAnswer() {
+  if (selectedOption === null) return;
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  const correct = selectedOption === lesson.practice.answer;
+  const options = document.querySelectorAll('.mcq-option');
+  options.forEach((opt, idx) => {
+    opt.classList.add('disabled');
+    if (idx === lesson.practice.answer) opt.classList.add('correct');
+    else if (idx === selectedOption && !correct) opt.classList.add('incorrect');
+  });
+  document.getElementById('submit-mcq').style.display = 'none';
+  showFeedback(correct, lesson.practice.explanation);
+  emitEvent(EVENT_TYPES.mcq_answered, { option: selectedOption, correct });
+  state.lessonActivityState[state.selectedLesson] = {
+    completed: true, correct, selectedOption, activityType: 'mcq',
+    feedback: document.getElementById('feedback-area').innerHTML, timestamp: Date.now()
+  };
+  if (correct) completeLesson();
+  selectedOption = null;
+}
+
+function selectDebugOption(el, idx) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.debug-option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
+  el.classList.add('selected');
+  el.setAttribute('aria-checked', 'true');
+  selectedOption = idx;
+  document.getElementById('submit-debug').disabled = false;
+  document.getElementById('submit-debug').style.opacity = '1';
+}
+
+function submitDebugAnswer() {
+  if (selectedOption === null) return;
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  const correct = selectedOption === lesson.practice.answer;
+  const options = document.querySelectorAll('.debug-option');
+  options.forEach((opt, idx) => {
+    opt.classList.add('disabled');
+    if (idx === lesson.practice.answer) opt.classList.add('correct');
+    else if (idx === selectedOption && !correct) opt.classList.add('incorrect');
+  });
+  document.getElementById('submit-debug').style.display = 'none';
+  showFeedback(correct, lesson.practice.explanation);
+  state.lessonActivityState[state.selectedLesson] = {
+    completed: true, correct, selectedOption, activityType: 'spot_error',
+    feedback: document.getElementById('feedback-area').innerHTML, timestamp: Date.now()
+  };
+  if (correct) completeLesson();
+  selectedOption = null;
+}
+
+function onCodeChange() { emitEvent(EVENT_TYPES.code_changed, { lesson_id: state.selectedLesson }); }
+
+function resetCode() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  if (lesson && lesson.practice.starterCode) {
+    document.getElementById('code-editor').innerHTML = lesson.practice.starterCode;
+  }
+  document.getElementById('output-body').innerHTML = '<span style="color: #94A3B8;">// Click "Run Code" to see output</span>';
+  document.getElementById('feedback-area').innerHTML = '';
+  emitEvent(EVENT_TYPES.retry_started, { lesson_id: state.selectedLesson });
+}
+
+let activePracticeOutputTab = 'output';
+let lastRunPracticeStdout = '';
+let lastRunPracticeConsoleLogs = [];
+let lastRunPracticeTestResults = [];
+
+function switchPracticeOutputTab(btn, tab) {
+  activePracticeOutputTab = tab;
+  document.querySelectorAll('.output-tab-placeholder').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderPracticeOutput();
+}
+
+function renderPracticeOutput() {
+  const output = document.getElementById('output-body');
+  if (!output) return;
+  if (activePracticeOutputTab === 'output') {
+    output.innerHTML = lastRunPracticeStdout || '<span style="color: #94A3B8;">// Click "Run Code" to see output</span>';
+  } else if (activePracticeOutputTab === 'console') {
+    if (lastRunPracticeConsoleLogs.length === 0) {
+      output.innerHTML = '<span style="color: #94A3B8;">// No console logs yet</span>';
+    } else {
+      output.innerHTML = lastRunPracticeConsoleLogs.map(l => `<div style="font-family: var(--font-mono); margin-bottom: 4px;">› ${l}</div>`).join('');
+    }
+  } else if (activePracticeOutputTab === 'tests') {
+    if (lastRunPracticeTestResults.length === 0) {
+      output.innerHTML = '<span style="color: #94A3B8;">// Run code to see test results</span>';
+    } else {
+      output.innerHTML = lastRunPracticeTestResults.map(t => `
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; margin-bottom: 6px; color: ${t.passed ? 'var(--success)' : 'var(--error)'};">
+          <span>${t.passed ? '✓' : '✗'}</span>
+          <span>${t.name}</span>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function getCleanPracticeCode() {
+  const editor = document.getElementById('code-editor');
+  if (!editor) return '';
+  return editor.innerText || editor.textContent || '';
+}
+
+function executeSandboxedJS(codeStr) {
+  const logs = [];
+  const fakeConsole = {
+    log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+    error: (...args) => logs.push('[error] ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+    warn: (...args) => logs.push('[warn] ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '))
+  };
+  try {
+    const fn = new Function('console', codeStr);
+    const ret = fn(fakeConsole);
+    return { success: true, logs, returnValue: ret, error: null };
+  } catch (err) {
+    return { success: false, logs, returnValue: null, error: err };
+  }
+}
+
+function runCode() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  const btn = document.getElementById('run-code-btn');
+  const output = document.getElementById('output-body');
+  const feedback = document.getElementById('feedback-area');
+
+  if (btn) {
+    btn.innerHTML = '<div style="width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: var(--r-full); animation: spin 0.8s linear infinite;"></div> Running...';
+    btn.disabled = true;
+  }
+  if (output) output.innerHTML = '<span style="color: #94A3B8;">Executing...</span>';
+  if (feedback) feedback.innerHTML = '';
+
+  emitEvent(EVENT_TYPES.code_executed, { lesson_id: state.selectedLesson });
+
+  setTimeout(() => {
+    if (btn) {
+      btn.innerHTML = '<i data-lucide="play" class="util-icon" aria-hidden="true"></i>Run Code';
+      btn.disabled = false;
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    const code = document.getElementById('code-editor') ? document.getElementById('code-editor').innerHTML : '';
+    const codeText = getCleanPracticeCode();
+    const runResult = executeSandboxedJS(codeText);
+
+    let success = false;
+    let tests = [];
+
+    if (!runResult.success) {
+      lastRunPracticeStdout = `<span style="color: var(--error);">${runResult.error.name}: ${runResult.error.message}</span>`;
+      lastRunPracticeConsoleLogs = runResult.logs.concat([`Error: ${runResult.error.message}`]);
+      tests = [{ name: 'Syntax & Runtime Execution', passed: false }];
+      lastRunPracticeTestResults = tests;
+      renderPracticeOutput();
+      if (feedback) {
+        feedback.innerHTML = `<div class="feedback-card feedback-error"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><div class="feedback-text"><strong>Runtime Error:</strong> ${runResult.error.message}. Fix syntax and try again.</div></div>`;
+      }
+      emitEvent(EVENT_TYPES.code_execution_error, { lesson_id: state.selectedLesson, error: runResult.error.message });
+      return;
+    }
+
+    lastRunPracticeConsoleLogs = runResult.logs;
+    const combinedLogs = runResult.logs.join('\n');
+
+    if (lesson.id === 5) {
+      const hasLet = /\blet\b/.test(codeText);
+      const hasScore = /\bscore\b/.test(codeText);
+      const hasPrinted100 = runResult.logs.some(l => l.includes('100'));
+
+      tests = [
+        { name: 'Declare "score" with let', passed: hasLet && hasScore },
+        { name: 'Print 100 to console', passed: hasPrinted100 }
+      ];
+      success = tests.every(t => t.passed);
+      lastRunPracticeStdout = combinedLogs || (success ? '100' : '<span style="color: var(--text-muted);">(no console output)</span>');
+    } else if (lesson.id === 7) {
+      const hasVars = (codeText.includes('name') || codeText.includes('age')) && (codeText.includes('let') || codeText.includes('const'));
+      const hasOutput = runResult.logs.length > 0;
+
+      tests = [
+        { name: 'Variables declared for name and age', passed: hasVars },
+        { name: 'Print both to console', passed: hasOutput }
+      ];
+      success = tests.every(t => t.passed);
+      lastRunPracticeStdout = combinedLogs || '<span style="color: var(--text-muted);">(no console output)</span>';
+    } else if (lesson.id === 9) {
+      const swapWorked = runResult.logs.some(l => l.includes('2') && l.includes('1'));
+      const logicUsed = codeText.includes('temp') || codeText.includes('[a, b]') || codeText.includes('[a,b]') || codeText.includes('b =') || codeText.includes('b=');
+
+      tests = [
+        { name: 'Values of a and b swapped', passed: logicUsed },
+        { name: 'Console outputs: 2 1', passed: swapWorked }
+      ];
+      success = tests.every(t => t.passed);
+      lastRunPracticeStdout = combinedLogs || '<span style="color: var(--text-muted);">(no console output)</span>';
+    } else {
+      success = true;
+      tests = [{ name: 'Code executed successfully', passed: true }];
+      lastRunPracticeStdout = combinedLogs || '<span style="color: var(--success);">Execution finished.</span>';
+    }
+
+    lastRunPracticeTestResults = tests;
+    renderPracticeOutput();
+
+    if (success) {
+      const feedbackHTML = `<div class="feedback-card feedback-success"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div class="feedback-text"><strong>Correct!</strong> All tests passed and your code ran successfully.</div></div>`;
+      if (feedback) feedback.innerHTML = feedbackHTML;
+      emitEvent(EVENT_TYPES.code_execution_success, { lesson_id: state.selectedLesson });
+      state.lessonActivityState[state.selectedLesson] = {
+        completed: true, correct: true, activityType: 'coding',
+        code, output: lastRunPracticeStdout, feedback: feedbackHTML, timestamp: Date.now()
+      };
+      savePracticeState();
+      completeLesson();
+    } else {
+      if (feedback) {
+        feedback.innerHTML = `<div class="feedback-card feedback-error"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg><div class="feedback-text"><strong>Not quite.</strong> Check the test requirements tab and output, then try again. Use hints if you're stuck.</div></div>`;
+      }
+      emitEvent(EVENT_TYPES.code_execution_error, { lesson_id: state.selectedLesson });
+    }
+  }, 500);
+}
+
+function showFeedback(correct, explanation) {
+  const feedback = document.getElementById('feedback-area');
+  feedback.innerHTML = `<div class="feedback-card ${correct ? 'feedback-success' : 'feedback-error'}"><svg class="feedback-icon" viewBox="0 0 24 24" fill="none" stroke="${correct ? 'var(--success)' : 'var(--error)'}" stroke-width="2.5">${correct ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>'}</svg><div class="feedback-text"><strong>${correct ? 'Correct!' : 'Not quite.'}</strong> ${explanation}</div></div>`;
+  emitEvent(EVENT_TYPES.activity_attempted, { correct });
+}
+
+// ============================================================
+// COMPLETION & PERSISTENCE
+// ============================================================
+function savePracticeState() {
+  try {
+    const data = {
+      completedLessons: state.completedLessons,
+      totalXP: state.totalXP,
+      conceptCompleted: state.conceptCompleted,
+      lessonActivityState: state.lessonActivityState
+    };
+    localStorage.setItem('helix_practice_state', JSON.stringify(data));
+  } catch (e) {}
+}
+
+function loadPracticeState() {
+  try {
+    const saved = localStorage.getItem('helix_practice_state');
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (Array.isArray(data.completedLessons)) state.completedLessons = data.completedLessons;
+      if (typeof data.totalXP === 'number') state.totalXP = data.totalXP;
+      if (typeof data.conceptCompleted === 'boolean') state.conceptCompleted = data.conceptCompleted;
+      if (data.lessonActivityState) state.lessonActivityState = data.lessonActivityState;
+    }
+  } catch (e) {}
+}
+
+function completeLesson() {
+  if (isLessonCompleted(state.selectedLesson)) return;
+  state.completedLessons.push(state.selectedLesson);
+  state.totalXP += XP_CONFIG.lessonCompletion;
+  savePracticeState();
+
+  emitEvent(EVENT_TYPES.lesson_completed, { lesson_id: state.selectedLesson });
+  emitEvent(EVENT_TYPES.activity_completed, { lesson_id: state.selectedLesson });
+  emitEvent(EVENT_TYPES.xp_earned, { xp: XP_CONFIG.lessonCompletion, total: state.totalXP });
+
+  renderLessonMap();
+  renderProgress();
+  renderCurrentLabel();
+
+  showXPCounter(XP_CONFIG.lessonCompletion);
+
+  // Check if this is the final lesson
+  const isFinalLesson = state.selectedLesson === getTotalLessons();
+  if (isFinalLesson && !state.conceptCompleted) {
+    setTimeout(() => completeConcept(), 1500);
+  } else {
+    showLessonCompletionModal();
+  }
+}
+
+function showXPCounter(amount) {
+  const counter = document.getElementById('xp-counter');
+  document.getElementById('xp-counter-value').textContent = `+${amount} XP`;
+  counter.classList.add('visible');
+  setTimeout(() => counter.classList.remove('visible'), 2500);
+}
+
+function showLessonCompletionModal() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  const modal = document.getElementById('completion-modal');
+  modal.innerHTML = `
+    <div class="completion-icon"><i class="ph ph-check-circle" aria-hidden="true"></i></div>
+    <div class="completion-title">Lesson Complete</div>
+    <div class="completion-subtitle">${lesson.title}</div>
+    <div class="completion-xp"><i data-lucide="star" class="util-icon" aria-hidden="true"></i>+${XP_CONFIG.lessonCompletion} XP earned</div>
+    <div class="completion-actions">
+      <button class="btn btn-secondary" onclick="reviewCompletedLesson()">Review</button>
+      <button class="btn btn-primary" onclick="advanceToNextLesson()">Next Lesson <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+    </div>
+  `;
+  document.getElementById('completion-overlay').classList.add('active');
+  lucide.createIcons();
+}
+
+function reviewCompletedLesson() {
+  closeCompletion();
+  const practiceTabBtn = document.querySelector('[data-tab="practice"]');
+  switchPrimaryTab('practice', practiceTabBtn);
+  renderActivity();
+  emitEvent(EVENT_TYPES.activity_reviewed, { lesson_id: state.selectedLesson });
+}
+
+// NEXT LESSON: advance to next lesson, go DIRECTLY to Practice tab
+function advanceToNextLesson() {
+  closeCompletion();
+  const nextId = state.selectedLesson + 1;
+  const nextLesson = curriculum.lessons.find(l => l.id === nextId);
+  if (!nextLesson) return;
+
+  const fromLesson = state.selectedLesson;
+  state.selectedLesson = nextId;
+  selectedOption = null;
+  theoryCheckSelected = null;
+
+  renderLessonMap();
+  renderProgress();
+  renderCurrentLabel();
+  updateOverview(nextId);
+
+  const practiceTabBtn = document.querySelector('[data-tab="practice"]');
+  switchPrimaryTab('practice', practiceTabBtn);
+  renderActivity();
+
+  const practiceMain = document.querySelector('.practice-main');
+  if (practiceMain && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    anime({
+      targets: practiceMain,
+      opacity: [0.6, 1],
+      translateY: [6, 0],
+      duration: 280,
+      easing: 'easeOutCubic'
+    });
+  }
+
+  emitEvent(EVENT_TYPES.next_lesson_selected, { from: fromLesson, to: nextId, activity_type: nextLesson.activityType });
+}
+
+function completeConcept() {
+  if (state.conceptCompleted === false) {
+    state.conceptCompleted = true;
+    state.totalXP += XP_CONFIG.conceptCompletionBonus;
+    savePracticeState();
+    emitEvent(EVENT_TYPES.concept_completed, { concept_id: curriculum.concept.id });
+    emitEvent(EVENT_TYPES.xp_earned, { xp: XP_CONFIG.conceptCompletionBonus, total: state.totalXP, type: 'concept_bonus' });
+  }
+
+  const modal = document.getElementById('completion-modal');
+  modal.innerHTML = `
+    <div class="completion-icon concept-icon"><i class="ph ph-trophy" aria-hidden="true"></i></div>
+    <div class="completion-title concept-title">Concept Complete</div>
+    <div class="completion-subtitle">You've mastered ${curriculum.concept.title}</div>
+    <div class="completion-xp concept-xp"><i data-lucide="star" class="util-icon" aria-hidden="true"></i>+${XP_CONFIG.conceptCompletionBonus} XP bonus</div>
+    <div class="completion-learned">
+      <div class="completion-learned-title">What You Learned</div>
+      <div class="completion-learned-list">
+        ✓ How to declare variables with let, const, and var<br>
+        ✓ Variable naming rules and conventions<br>
+        ✓ Reassigning values vs constants<br>
+        ✓ Common errors and how to avoid them<br>
+        ✓ Swapping variables and practical patterns
+      </div>
+    </div>
+    <div class="completion-next-label">Next Up</div>
+    <div class="completion-next-title">Conditionals</div>
+    <div class="completion-next-desc">Make decisions in your code using if, else, and else if.</div>
+    <div class="completion-actions">
+      <button class="btn btn-secondary" onclick="reviewConcept()">Review Concept</button>
+      <button class="btn btn-primary" onclick="continueToNextConcept()">Continue to Conditionals <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+    </div>
+  `;
+  document.getElementById('completion-overlay').classList.add('active');
+  lucide.createIcons();
+}
+
+function reviewConcept() {
+  closeCompletion();
+  const lessonTabBtn = document.querySelector('[data-tab="lesson"]');
+  switchPrimaryTab('lesson', lessonTabBtn);
+  emitEvent(EVENT_TYPES.activity_reviewed, { type: 'concept_review' });
+}
+
+function continueToNextConcept() {
+  closeCompletion();
+  emitEvent(EVENT_TYPES.next_concept_selected, { next_concept: 'conditionals' });
+  window.location.href = 'qwen_learn.html';
+}
+
+function closeCompletion() {
+  document.getElementById('completion-overlay').classList.remove('active');
+}
+
+// ============================================================
+// NAVIGATION & ACTIONS
+// ============================================================
+function selectLesson(lessonId) {
+  const lesson = curriculum.lessons.find(l => l.id === lessonId);
+  if (lesson && lesson.status === 'locked') return;
+  state.selectedLesson = lessonId;
+  selectedOption = null;
+  theoryCheckSelected = null;
+  renderLessonMap();
+  renderCurrentLabel();
+  updateOverview(lessonId);
+  loadNotes();
+
+  if (state.activePrimaryTab === 'practice') {
+    renderActivity();
+  }
+
+  emitEvent(EVENT_TYPES.lesson_selected, { lesson_id: lessonId, lesson_title: lesson ? lesson.title : '', activity_type: lesson ? lesson.activityType : '' });
+}
+
+function beginActivity() {
+  const lesson = curriculum.lessons.find(l => l.id === state.selectedLesson);
+  if (!lesson) return;
+  emitEvent(EVENT_TYPES.lesson_started, { lesson_id: state.selectedLesson });
+  const practiceTabBtn = document.querySelector('[data-tab="practice"]');
+  switchPrimaryTab('practice', practiceTabBtn);
+}
+
+function goToNextLesson() {
+  const targetId = state.personalizedNextLesson || (state.selectedLesson + 1);
+  const nextLesson = curriculum.lessons.find(l => l.id === targetId);
+  if (!nextLesson) return;
+  const fromLesson = state.selectedLesson;
+  state.selectedLesson = targetId;
+  selectedOption = null;
+  theoryCheckSelected = null;
+  state.personalizedNextLesson = null;
+  state.personalizationRationale = '';
+  renderLessonMap();
+  renderProgress();
+  renderCurrentLabel();
+  updateOverview(targetId);
+  loadNotes();
+  const lessonTabBtn = document.querySelector('[data-tab="lesson"]');
+  switchPrimaryTab('lesson', lessonTabBtn);
+  emitEvent(EVENT_TYPES.next_lesson_selected, { from: fromLesson, to: targetId, activity_type: nextLesson.activityType });
+}
+
+function goToPrevLesson() {
+  const prevId = state.selectedLesson - 1;
+  if (prevId < 1) return;
+  const fromLesson = state.selectedLesson;
+  state.selectedLesson = prevId;
+  selectedOption = null;
+  theoryCheckSelected = null;
+  renderLessonMap();
+  renderCurrentLabel();
+  updateOverview(prevId);
+  loadNotes();
+  const lessonTabBtn = document.querySelector('[data-tab="lesson"]');
+  switchPrimaryTab('lesson', lessonTabBtn);
+  emitEvent(EVENT_TYPES.prev_lesson_selected, { from: fromLesson, to: prevId });
+}
+
+function switchPrimaryTab(tabId, btn) {
+  state.activePrimaryTab = tabId;
+  document.querySelectorAll('.tab-row .tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+  if (btn) { btn.classList.add('active'); btn.setAttribute('aria-selected', 'true'); }
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('panel-' + tabId);
+  if (panel) panel.classList.add('active');
+  if (tabId === 'practice') {
+    renderActivity();
+  }
+  emitEvent(EVENT_TYPES.primary_tab_changed, { tab: tabId });
+}
+
+function toggleHint(num) {
+  const el = document.getElementById('hint-' + num);
+  if (el) el.classList.toggle('expanded');
+  emitEvent(EVENT_TYPES.hint_requested, { hint_number: num, lesson_id: state.selectedLesson });
+}
+
+// ============================================================
+// INTERACTIVE CHATBOT & GEMINI PERSONALIZATION ENGINE
+// ============================================================
+const lessonWelcomePrompts = {
+  1: "👋 Hi! I'm Helix AI. In this lesson, we explore what variables are and why programs need them. Feel free to ask me anything if any concept isn't 100% clear!",
+  2: "👋 On this question, you need to predict what `x` will hold after reassignment. Let me know if you want a hint or explanation!",
+  3: "👋 Wondering about `let`, `const`, and `var`? Ask me about block scope or reassignment rules!",
+  4: "👋 JavaScript has naming rules (camelCase, reserved words). Ask if you want to know which names are valid or why!",
+  5: "👋 In this challenge, write code to declare and reassign `score`. If your code produces errors or you need a hint, ask me!",
+  6: "👋 Why does `const` throw a `TypeError` when reassigned? Ask me and I'll explain constant memory bindings!",
+  7: "👋 Code challenge: Declare your own variables and log them. Ask if you want help with multi-variable declarations!",
+  8: "👋 Spot the error: Look closely at `const PI`. Ask me if you'd like a hint on identifying runtime exceptions!",
+  9: "👋 Mini Challenge time! You need to swap `a` and `b`. Ask me if you need help with temporary variables or ES6 swap tricks!",
+  10: "👋 Great job reaching the Summary! Ask me any closing questions or test cases on variables before moving to the next concept!"
+};
+
+function formatChatMarkdown(text) {
+  if (!text) return '';
+  let safe = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  safe = safe.replace(/```(?:javascript|js)?([\s\S]*?)```/g, '<pre style="background: #0D1117; color: #E6EDF3; padding: 8px; border-radius: 6px; font-family: monospace; font-size: 0.75rem; overflow-x: auto; margin: 6px 0;"><code>$1</code></pre>');
+  safe = safe.replace(/`([^`]+)`/g, '<code style="background: rgba(99,102,241,0.12); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-family: monospace; font-size: 0.8em;">$1</code>');
+  safe = safe.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  safe = safe.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  safe = safe.replace(/\n/g, '<br>');
+  return safe;
+}
+
+function renderChatForCurrentLesson() {
+  const container = document.getElementById('chat-messages-container');
+  if (!container) return;
+  
+  const lessonId = state.selectedLesson;
+  if (!state.chatHistories[lessonId]) {
+    const welcome = lessonWelcomePrompts[lessonId] || `👋 Hi! I'm Helix AI. I'm here to assist you with this question. Ask me anything!`;
+    state.chatHistories[lessonId] = [
+      { role: 'assistant', content: welcome, assessment: null }
+    ];
+  }
+  
+  const msgs = state.chatHistories[lessonId];
+  container.innerHTML = msgs.map(m => {
+    if (m.role === 'user') {
+      return `<div class="chat-msg chat-msg-user">${formatChatMarkdown(m.content)}</div>`;
+    } else {
+      let metaHtml = '';
+      if (m.assessment) {
+        const lvl = m.assessment.evaluated_level || 'Intermediate';
+        const st = m.assessment.understanding_state || 'on_track';
+        const comp = m.assessment.question_complexity || 'Intermediate';
+        const stColor = st === 'mastery' ? 'var(--success)' : st === 'struggling' ? 'var(--warning)' : 'var(--primary)';
+        metaHtml = `<div style="margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap;">
+          <span class="chat-meta-badge" style="background: var(--primary-light); color: var(--primary);">Evaluated: ${lvl}</span>
+          <span class="chat-meta-badge" style="background: var(--bg-primary); color: var(--text-muted);">${comp}</span>
+          <span class="chat-meta-badge" style="background: var(--bg-secondary); color: ${stColor}; font-weight: 700;">${st}</span>
+        </div>`;
+      }
+      return `<div class="chat-msg chat-msg-ai"><div class="chat-text">${formatChatMarkdown(m.content)}</div>${metaHtml}</div>`;
+    }
+  }).join('');
+  
+  container.scrollTop = container.scrollHeight;
+  updatePersonalizationPill();
+  updateApiKeyIndicator();
+}
+
+function updatePersonalizationPill() {
+  const pill = document.getElementById('chat-personalization-pill');
+  const btnNext = document.getElementById('btn-next-lesson');
+  if (!pill) return;
+  
+  if (state.personalizedNextLesson) {
+    const target = curriculum.lessons.find(l => l.id === state.personalizedNextLesson);
+    const title = target ? target.title : `Lesson ${state.personalizedNextLesson}`;
+    pill.style.display = 'block';
+    const pillTitle = document.getElementById('pill-title');
+    const pillRat = document.getElementById('pill-rationale');
+    if (pillTitle) pillTitle.textContent = `🎯 Personalized Next: Lesson ${state.personalizedNextLesson} (${title})`;
+    if (pillRat) pillRat.textContent = state.personalizationRationale || 'Tailored to your inquiry level.';
+    
+    if (btnNext) {
+      btnNext.innerHTML = `Next: Lesson ${state.personalizedNextLesson} ✨ <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>`;
+      btnNext.classList.add('btn-pulse');
+      lucide.createIcons();
+    }
+  } else {
+    pill.style.display = 'none';
+    if (btnNext) {
+      btnNext.innerHTML = `Next Lesson <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>`;
+      btnNext.classList.remove('btn-pulse');
+      lucide.createIcons();
+    }
+  }
+}
+
+async function sendChatMessage(promptText) {
+  const input = document.getElementById('chat-user-input');
+  const text = (promptText || (input ? input.value : '')).trim();
+  if (!text) return;
+  if (input) input.value = '';
+  
+  const lessonId = state.selectedLesson;
+  if (!state.chatHistories[lessonId]) {
+    state.chatHistories[lessonId] = [];
+  }
+  
+  // Add user message
+  state.chatHistories[lessonId].push({ role: 'user', content: text });
+  
+  // Add thinking placeholder
+  const thinkingId = 'thinking_' + Date.now();
+  const container = document.getElementById('chat-messages-container');
+  if (container) {
+    const userMsgEl = document.createElement('div');
+    userMsgEl.className = 'chat-msg chat-msg-user';
+    userMsgEl.innerHTML = formatChatMarkdown(text);
+    container.appendChild(userMsgEl);
+    
+    const thinkingEl = document.createElement('div');
+    thinkingEl.className = 'chat-msg chat-msg-ai';
+    thinkingEl.id = thinkingId;
+    thinkingEl.innerHTML = '<span style="color: var(--text-muted); font-style: italic;"><i class="ph ph-circle-notch" style="animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Helix AI is evaluating your question...</span>';
+    container.appendChild(thinkingEl);
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  const lesson = curriculum.lessons.find(l => l.id === lessonId);
+  const apiKey = localStorage.getItem('helix_gemini_api_key') || '';
+  const currentCode = getCleanPracticeCode();
+  
+  try {
+    const res = await fetch(`${window.ADAPTIVE_API_URL || window.location.origin}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        lesson_id: lessonId,
+        lesson_context: `${curriculum.concept.title}: ${lesson ? lesson.title : 'Practice'}`,
+        active_code: currentCode,
+        current_user_level: state.userLevel || 'Beginner',
+        learner_type: state.learnerType || 'Manual Learner',
+        chat_history: state.chatHistories[lessonId].slice(-6),
+        api_key: apiKey,
+        accuracy_rate: getCompletedCount() > 0 ? (getCompletedCount() / curriculum.lessons.length) : 0.8,
+        total_time_seconds: 60.0,
+        retries: state.retriesCount || 0,
+        hint_requests: state.hintsUsed || 0,
+        code_submissions: state.submissionsCount || 1,
+        experiments_started: 0
+      })
+    });
+    
+    if (!res.ok) throw new Error(`Server returned ${res.status}`);
+    const data = await res.json();
+    
+    if (data.state) {
+      if (data.state.current_user_level) state.userLevel = data.state.current_user_level;
+      if (data.state.learner_type) state.learnerType = data.state.learner_type;
+      if (data.state.recommended_next_lesson_id) {
+        state.personalizedNextLesson = data.state.recommended_next_lesson_id;
+        state.personalizationRationale = data.state.personalization_rationale;
+      }
+    }
+    
+    state.chatHistories[lessonId].push({
+      role: 'assistant',
+      content: data.reply,
+      assessment: data.assessment
+    });
+    
+    renderChatForCurrentLesson();
+    renderLessonMap();
+    
+    emitEvent('chat_question_asked', {
+      lesson_id: lessonId,
+      question: text,
+      evaluated_level: data.assessment?.evaluated_level,
+      recommended_next: data.assessment?.recommended_next_lesson_id
+    });
+    
+  } catch (err) {
+    console.warn('[Helix chat fallback]', err.message);
+    const thinkingEl = document.getElementById(thinkingId);
+    const fallbackText = `**Helix Tutor:** In **${lesson ? lesson.title : 'this lesson'}**, focus on declaring and using your variables properly. Make sure variable names and expressions match the objective!`;
+    if (thinkingEl) {
+      thinkingEl.innerHTML = formatChatMarkdown(fallbackText);
+    }
+    state.chatHistories[lessonId].push({
+      role: 'assistant',
+      content: fallbackText,
+      assessment: null
+    });
+    renderChatForCurrentLesson();
+  }
+}
+
+function sendQuickPrompt(promptText) {
+  sendChatMessage(promptText);
+}
+
+function assistantAction(action) {
+  const promptMap = {
+    explain: 'Can you explain the main concept of this question in simple terms?',
+    example: 'Can you give me an example of how to solve this question?',
+    question: 'What is the most common mistake students make on this question?'
+  };
+  sendChatMessage(promptMap[action] || 'Can you help me with this question?');
+}
+
+function toggleApiKeyModal() {
+  const modal = document.getElementById('gemini-key-modal');
+  if (!modal) return;
+  const isHidden = modal.style.display === 'none' || !modal.style.display;
+  modal.style.display = isHidden ? 'flex' : 'none';
+  if (isHidden) {
+    const input = document.getElementById('gemini-key-input');
+    if (input) input.value = localStorage.getItem('helix_gemini_api_key') || '';
+    const status = document.getElementById('gemini-key-status');
+    if (status) status.style.display = 'none';
+  }
+}
+
+async function saveAndVerifyApiKey() {
+  const input = document.getElementById('gemini-key-input');
+  const status = document.getElementById('gemini-key-status');
+  const btn = document.getElementById('btn-save-gemini-key');
+  const key = (input ? input.value : '').trim();
+  
+  if (!key) {
+    if (status) {
+      status.style.display = 'block';
+      status.style.background = 'var(--error-light)';
+      status.style.color = 'var(--error-dark)';
+      status.textContent = 'Please enter a valid Gemini API key.';
+    }
+    return;
+  }
+  
+  if (btn) btn.textContent = 'Verifying...';
+  if (status) {
+    status.style.display = 'block';
+    status.style.background = 'var(--primary-light)';
+    status.style.color = 'var(--primary)';
+    status.textContent = 'Verifying with Google Gemini API...';
+  }
+  
+  try {
+    const res = await fetch(`${window.ADAPTIVE_API_URL || window.location.origin}/api/verify_key`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: key })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      localStorage.setItem('helix_gemini_api_key', key);
+      status.style.background = 'var(--success-light)';
+      status.style.color = 'var(--success-dark)';
+      status.textContent = '✓ Gemini API key verified and active!';
+      updateApiKeyIndicator();
+      setTimeout(() => toggleApiKeyModal(), 1200);
+    } else {
+      status.style.background = 'var(--warning-light)';
+      status.style.color = 'var(--warning-dark)';
+      status.textContent = '⚠ ' + (data.message || 'Verification failed. Key saved locally.');
+      localStorage.setItem('helix_gemini_api_key', key);
+      updateApiKeyIndicator();
+    }
+  } catch (err) {
+    localStorage.setItem('helix_gemini_api_key', key);
+    if (status) {
+      status.style.background = 'var(--warning-light)';
+      status.style.color = 'var(--warning-dark)';
+      status.textContent = 'Key saved locally (offline verification skipped).';
+    }
+    updateApiKeyIndicator();
+    setTimeout(() => toggleApiKeyModal(), 1200);
+  } finally {
+    if (btn) btn.textContent = 'Verify & Save';
+  }
+}
+
+function clearApiKey() {
+  localStorage.removeItem('helix_gemini_api_key');
+  const input = document.getElementById('gemini-key-input');
+  if (input) input.value = '';
+  const status = document.getElementById('gemini-key-status');
+  if (status) {
+    status.style.display = 'block';
+    status.style.background = 'var(--bg-secondary)';
+    status.style.color = 'var(--text-secondary)';
+    status.textContent = 'Gemini API key removed. Running in intelligent offline mode.';
+  }
+  updateApiKeyIndicator();
+  setTimeout(() => toggleApiKeyModal(), 1000);
+}
+
+function updateApiKeyIndicator() {
+  const dot = document.getElementById('key-indicator-dot');
+  const key = localStorage.getItem('helix_gemini_api_key');
+  if (dot) {
+    dot.style.background = key ? '#10B981' : '#94A3B8';
+    dot.title = key ? 'Gemini API Key Active (Online AI Mode)' : 'Offline / Heuristic Mode (Click to set Gemini API key)';
+  }
+}
+
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+
+// ============================================================
+// THEME & TOPBAR
+// ============================================================
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('helix_theme', theme);
+  const toggleBtn = document.querySelector('.theme-toggle');
+  if (toggleBtn) {
+    toggleBtn.innerHTML = theme === 'dark'
+      ? '<i data-lucide="sun" class="util-icon" aria-hidden="true"></i> Light'
+      : '<i data-lucide="moon" class="util-icon" aria-hidden="true"></i> Dark';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('helix_theme');
+  if (saved) {
+    applyTheme(saved);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyTheme('dark');
+  }
+}
+
+function handlePracticeSearch(query) {
+  if (!query || !query.trim()) return;
+  const q = query.toLowerCase().trim();
+  const match = curriculum.lessons.find(l => l.title.toLowerCase().includes(q));
+  if (match) {
+    selectLesson(match.id);
+  }
+}
+
+function showStreakPopover() {
+  alert('🔥 12-Day Streak Active!\nYou have practiced consistently for 12 consecutive days. Keep it going!');
+}
+
+function showNotificationPopover() {
+  alert('🔔 Helix Notifications:\n• Great job! You completed Lesson 5: "Variable Scope"\n• New challenge unlocked in Loops\n• Daily goal: 15 mins (85% completed)');
+}
+
+function exportNotes() {
+  const notes = document.getElementById('notes-editor') ? document.getElementById('notes-editor').value : '';
+  if (!notes || !notes.trim()) {
+    alert('No notes to export yet.');
+    return;
+  }
+  const blob = new Blob([notes], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `helix_notes_lesson_${state.selectedLesson}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// ============================================================
+// NOTES
+// ============================================================
+function saveNotes() {
+  const notes = document.getElementById('notes-editor').value;
+  state.notes[state.selectedLesson] = notes;
+  try { localStorage.setItem('helix_notes_' + state.session.learnerId, JSON.stringify(state.notes)); } catch(e) {}
+  emitEvent(EVENT_TYPES.note_updated, { lesson_id: state.selectedLesson });
+  alert('Notes saved!');
+}
+function clearNotes() {
+  document.getElementById('notes-editor').value = '';
+  state.notes[state.selectedLesson] = '';
+  emitEvent(EVENT_TYPES.note_created, { lesson_id: state.selectedLesson });
+}
+function loadNotes() {
+  try { const saved = localStorage.getItem('helix_notes_' + state.session.learnerId); if (saved) state.notes = JSON.parse(saved); } catch(e) {}
+  const notes = state.notes[state.selectedLesson] || '';
+  const editor = document.getElementById('notes-editor');
+  if (editor) editor.value = notes;
+}
+
+// ============================================================
+// DEBUG
+// ============================================================
+function toggleDebug() { document.getElementById('debug-inspector').classList.toggle('open'); }
+function renderDebug() {
+  const list = document.getElementById('debug-list');
+  const count = document.getElementById('debug-count');
+  count.textContent = eventCollector.length + ' event' + (eventCollector.length !== 1 ? 's' : '');
+  const recent = eventCollector.slice(-30).reverse();
+  list.innerHTML = recent.map(evt => {
+    const time = new Date(evt.timestamp).toLocaleTimeString('en-US', { hour12: false });
+    return `<div class="debug-item"><div class="debug-item-time">${time}</div><div class="debug-item-type">${evt.event_type}</div><div class="debug-item-meta">lesson: ${evt.lesson_id} · step: ${evt.step_number}</div></div>`;
+  }).join('');
+}
+function clearDebug() { eventCollector.length = 0; renderDebug(); }
+
+// ============================================================
+// KEYBOARD
+// ============================================================
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); document.getElementById('topbar-search-input')?.focus(); }
+  if (e.key === 'Escape') { document.getElementById('sidebar').classList.remove('open'); document.getElementById('completion-overlay').classList.remove('active'); }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'D') { e.preventDefault(); toggleDebug(); }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  loadPracticeState();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const lessonParam = urlParams.get('lesson');
+  if (lessonParam && !isNaN(parseInt(lessonParam))) {
+    const lId = parseInt(lessonParam);
+    if (lId >= 1 && lId <= curriculum.lessons.length) {
+      state.selectedLesson = lId;
+    }
+  }
+
+  const courseParam = urlParams.get('course');
+  const conceptParam = urlParams.get('concept');
+  if (courseParam) {
+    const breadcrumbCourse = document.getElementById('breadcrumb-course');
+    if (breadcrumbCourse) {
+      breadcrumbCourse.textContent = courseParam === 'python-basics' ? 'Python Basics' : courseParam === 'web-dev' ? 'Web Development' : 'JavaScript Fundamentals';
+      breadcrumbCourse.href = `qwen_learn.html?course=${encodeURIComponent(courseParam)}`;
+    }
+  }
+  if (conceptParam) {
+    const breadcrumbConcept = document.getElementById('breadcrumb-concept');
+    if (breadcrumbConcept) {
+      breadcrumbConcept.textContent = conceptParam.charAt(0).toUpperCase() + conceptParam.slice(1);
+    }
+  }
+
+  renderLessonMap();
+  renderProgress();
+  renderCurrentLabel();
+  renderTryChecklist();
+  updateOverview(state.selectedLesson);
+  loadNotes();
+  renderChatForCurrentLesson();
+  updateApiKeyIndicator();
+  emitEvent(EVENT_TYPES.practice_page_opened, { concept: curriculum.concept.id });
+  lucide.createIcons();
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReduced && typeof anime !== 'undefined') {
+    anime({ targets: '.lesson-map-item', opacity: [0, 1], translateX: [-8, 0], duration: 300, easing: 'easeOutCubic', delay: anime.stagger(40, { start: 100 }) });
+    anime({ targets: '.overview-panel, .try-yourself', opacity: [0, 1], translateY: [8, 0], duration: 350, easing: 'easeOutCubic', delay: 200 });
+  }
+});
+</script>
+
+<script src="client_telemetry_bridge.js"></script>
+</body>
+</html>

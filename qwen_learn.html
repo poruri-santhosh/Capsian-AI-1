@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn — Helix</title>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5.0.16/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/index.css">
+<style>
+/* ============================================================
+   HELIX DESIGN TOKENS — Shared with helix_qwen(1).html
+   ============================================================ */
+:root {
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #F1F5F9;
+  --bg-tertiary: #E2E8F0;
+  --surface: #FFFFFF;
+  --surface-hover: #FAFBFD;
+  --border: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-strong: #CBD5E1;
+  --primary: #6366F1;
+  --primary-hover: #4F46E5;
+  --primary-light: #EEF2FF;
+  --primary-dark-light: #E0E7FF;
+  --secondary: #8B5CF6;
+  --secondary-light: #F5F3FF;
+  --success: #10B981;
+  --success-light: #D1FAE5;
+  --success-dark: #065F46;
+  --warning: #F59E0B;
+  --warning-light: #FEF3C7;
+  --warning-dark: #92400E;
+  --error: #EF4444;
+  --error-light: #FEE2E2;
+  --error-dark: #991B1B;
+  --info: #3B82F6;
+  --info-light: #DBEAFE;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-faint: #CBD5E1;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem;
+  --sp-12: 3rem; --sp-16: 4rem;
+  --r-sm: 0.375rem; --r-md: 0.5rem; --r-lg: 0.75rem;
+  --r-xl: 1rem; --r-2xl: 1.25rem; --r-full: 9999px;
+  --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15,23,42,0.07), 0 2px 4px -2px rgba(15,23,42,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -4px rgba(15,23,42,0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(15,23,42,0.1), 0 8px 10px -6px rgba(15,23,42,0.06);
+  --shadow-glow: 0 0 0 3px rgba(99,102,241,0.15);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --dur-micro: 150ms; --dur-standard: 250ms;
+  --dur-major: 500ms; --dur-instructional: 800ms;
+  --sidebar-w: 240px; --topbar-h: 64px; --content-max: 1280px;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #0B0F19;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1F2937;
+  --surface: #111827;
+  --surface-hover: #1F2937;
+  --border: #1F2937;
+  --border-subtle: #161E2E;
+  --border-strong: #374151;
+  --primary-light: rgba(99, 102, 241, 0.15);
+  --primary-dark-light: rgba(99, 102, 241, 0.25);
+  --secondary-light: rgba(139, 92, 246, 0.15);
+  --success-light: rgba(16, 185, 129, 0.15);
+  --warning-light: rgba(245, 158, 11, 0.15);
+  --error-light: rgba(239, 68, 68, 0.15);
+  --info-light: rgba(59, 130, 246, 0.15);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-faint: #334155;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+body { background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; overflow-x: hidden; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+code, pre, .mono { font-family: var(--font-mono); }
+
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: var(--r-sm); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
+
+/* ============================================================
+   ICON SYSTEM — Unified 24px grid
+   ============================================================ */
+.ph { font-size: 24px; line-height: 1; }
+.ph-duotone { --ph-duotone-opacity: 0.2; }
+.nav-icon { width: 18px; height: 18px; }
+.util-icon { width: 16px; height: 16px; }
+.concept-icon-svg { width: 24px; height: 24px; }
+.course-icon-svg { width: 28px; height: 28px; }
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar {
+  width: var(--sidebar-w); min-height: 100vh; background: var(--surface);
+  border-right: 1px solid var(--border); display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 40;
+  transition: transform var(--dur-standard) var(--ease-out);
+}
+.sidebar-brand { padding: var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); border-bottom: 1px solid var(--border-subtle); }
+.sidebar-brand-text { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+.sidebar-nav { padding: var(--sp-4); flex: 1; overflow-y: auto; }
+.sidebar-section-label { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); padding: var(--sp-4) var(--sp-3) var(--sp-2); }
+.nav-item {
+  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-md); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);
+  cursor: pointer; transition: all var(--dur-micro) var(--ease-out); margin-bottom: 2px;
+  user-select: none; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.nav-item .nav-icon { color: var(--text-muted); transition: color var(--dur-micro); flex-shrink: 0; }
+.nav-item:hover .nav-icon { color: var(--text-secondary); }
+.nav-item.active .nav-icon { color: var(--primary); }
+.sidebar-footer { padding: var(--sp-4); border-top: 1px solid var(--border-subtle); }
+.theme-toggle { display: flex; align-items: center; gap: var(--sp-2); font-size: 0.8125rem; color: var(--text-secondary); padding: var(--sp-2) var(--sp-3); cursor: pointer; border-radius: var(--r-md); transition: background var(--dur-micro); background: none; border: none; width: 100%; text-align: left; }
+.theme-toggle:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+.main-content { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar {
+  height: var(--topbar-h); background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 var(--sp-8); gap: var(--sp-4);
+  position: sticky; top: 0; z-index: 30;
+}
+.topbar-search {
+  flex: 1; max-width: 480px; display: flex; align-items: center; gap: var(--sp-3);
+  background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: var(--sp-2) var(--sp-4); transition: all var(--dur-micro);
+}
+.topbar-search:focus-within { border-color: var(--primary); box-shadow: var(--shadow-glow); background: var(--surface); }
+.topbar-search input { flex: 1; border: none; background: none; outline: none; font-size: 0.875rem; color: var(--text-primary); font-family: var(--font-sans); }
+.topbar-search input::placeholder { color: var(--text-muted); }
+.topbar-search .util-icon { color: var(--text-muted); flex-shrink: 0; }
+.search-kbd { font-size: 0.6875rem; color: var(--text-muted); background: var(--surface); padding: 2px 6px; border-radius: var(--r-sm); border: 1px solid var(--border); font-family: var(--font-sans); font-weight: 500; }
+.topbar-actions { display: flex; align-items: center; gap: var(--sp-3); margin-left: auto; }
+.icon-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-md); color: var(--text-secondary); cursor: pointer; transition: all var(--dur-micro); position: relative; background: none; border: none; }
+.icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.icon-btn .badge-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--error); border-radius: var(--r-full); border: 2px solid var(--surface); }
+.avatar { width: 36px; height: 36px; border-radius: var(--r-full); background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: transform var(--dur-micro); }
+.avatar:hover { transform: scale(1.05); }
+.mobile-menu-btn { display: none; }
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+.page { padding: var(--sp-8); max-width: var(--content-max); margin: 0 auto; width: 100%; }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-6); transition: box-shadow var(--dur-standard) var(--ease-out); }
+.card-hover:hover { box-shadow: var(--shadow-md); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
+.card-title { font-size: 0.9375rem; font-weight: 600; }
+.card-action { font-size: 0.8125rem; color: var(--primary); font-weight: 500; cursor: pointer; background: none; border: none; display: inline-flex; align-items: center; gap: 4px; }
+.card-action:hover { text-decoration: underline; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-md); font-size: 0.875rem; font-weight: 500; cursor: pointer; transition: all var(--dur-micro) var(--ease-out); border: 1px solid transparent; user-select: none; white-space: nowrap; font-family: var(--font-sans); line-height: 1.4; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+.btn-secondary { background: var(--surface); color: var(--text-primary); border-color: var(--border); }
+.btn-secondary:hover { background: var(--bg-secondary); border-color: var(--border-strong); }
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.btn-sm { padding: var(--sp-1) var(--sp-3); font-size: 0.8125rem; }
+.btn-lg { padding: var(--sp-3) var(--sp-6); font-size: 0.9375rem; }
+
+/* ============================================================
+   PROGRESS
+   ============================================================ */
+.progress-track { height: 6px; background: var(--bg-secondary); border-radius: var(--r-full); overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: var(--r-full); transition: width var(--dur-major) var(--ease-out); }
+.progress-fill-success { background: var(--success); }
+
+/* ============================================================
+   BADGE
+   ============================================================ */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--r-full); font-size: 0.75rem; font-weight: 500; }
+.badge-primary { background: var(--primary-light); color: var(--primary); }
+.badge-success { background: var(--success-light); color: var(--success-dark); }
+.badge-warning { background: var(--warning-light); color: var(--warning-dark); }
+.badge-error { background: var(--error-light); color: var(--error-dark); }
+.badge-muted { background: var(--bg-secondary); color: var(--text-muted); }
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
+.divider { height: 1px; background: var(--border); margin: var(--sp-4) 0; }
+
+/* ============================================================
+   TEXT GRADIENT
+   ============================================================ */
+.text-gradient { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* ============================================================
+   LEARN HEADER — refined spacing
+   ============================================================ */
+.learn-hero {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); align-items: center;
+  margin-bottom: var(--sp-6); padding: var(--sp-6) 0 var(--sp-4);
+}
+.learn-hero-title { font-size: 2.5rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: var(--sp-3); }
+.learn-hero-subtitle { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 520px; margin-bottom: var(--sp-5); }
+.learn-hero-illustration { position: relative; display: flex; justify-content: center; }
+.learn-hero-illustration img { width: 100%; max-width: 420px; border-radius: var(--r-2xl); }
+.hero-float {
+  position: absolute; background: var(--surface); padding: var(--sp-3); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+}
+
+/* ============================================================
+   SEARCH (LEARN)
+   ============================================================ */
+.learn-search {
+  display: flex; align-items: center; gap: var(--sp-3); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-xl); padding: var(--sp-3) var(--sp-4);
+  margin-bottom: var(--sp-4); transition: all var(--dur-micro); max-width: 640px;
+}
+.learn-search:focus-within { border-color: var(--primary); box-shadow: var(--shadow-glow); }
+.learn-search input { flex: 1; border: none; background: none; outline: none; font-size: 0.9375rem; color: var(--text-primary); font-family: var(--font-sans); }
+.learn-search input::placeholder { color: var(--text-muted); }
+.learn-search .util-icon { color: var(--text-muted); flex-shrink: 0; }
+.search-clear { display: none; background: var(--bg-secondary); border-radius: var(--r-full); padding: 4px 8px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; border: none; }
+.search-clear.visible { display: block; }
+
+/* ============================================================
+   FILTER ROW — topics + difficulty in one row
+   ============================================================ */
+.filter-row {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3);
+  margin-bottom: var(--sp-6); flex-wrap: wrap;
+}
+.topic-filters { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; flex: 1; }
+.topic-filter {
+  padding: var(--sp-2) var(--sp-4); border-radius: var(--r-full); font-size: 0.875rem; font-weight: 500;
+  color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all var(--dur-micro) var(--ease-out); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.topic-filter:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.topic-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+.topic-filter-more { display: inline-flex; align-items: center; gap: 4px; }
+
+.difficulty-filter-wrap { flex-shrink: 0; }
+.difficulty-filter {
+  display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md);
+  font-size: 0.875rem; color: var(--text-secondary); cursor: pointer; transition: all var(--dur-micro);
+  font-family: var(--font-sans);
+}
+.difficulty-filter:hover { border-color: var(--border-strong); }
+
+/* ============================================================
+   CONTINUE LEARNING
+   ============================================================ */
+.continue-learning {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-6); margin-bottom: var(--sp-8); display: grid;
+  grid-template-columns: auto 1fr auto; gap: var(--sp-6); align-items: center;
+}
+.continue-icon {
+  width: 64px; height: 64px; border-radius: var(--r-xl); display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.continue-icon .ph { font-size: 28px; }
+.continue-info { min-width: 0; }
+.continue-title { font-size: 1.125rem; font-weight: 600; margin-bottom: 4px; }
+.continue-meta { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--sp-3); }
+.continue-progress { display: flex; align-items: center; gap: var(--sp-3); }
+.continue-progress-bar { flex: 1; max-width: 240px; }
+.continue-progress-text { font-size: 0.8125rem; color: var(--text-muted); font-weight: 500; }
+.continue-next { border-left: 1px solid var(--border); padding-left: var(--sp-6); }
+.continue-next-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+.continue-next-title { font-size: 0.9375rem; font-weight: 500; margin-bottom: var(--sp-3); }
+
+/* ============================================================
+   CONCEPT GALLERY
+   ============================================================ */
+.concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); margin-bottom: var(--sp-8); }
+.concept-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-5); cursor: pointer; transition: all var(--dur-standard) var(--ease-out);
+  display: flex; flex-direction: column; position: relative;
+}
+.concept-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--primary); }
+.concept-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--sp-3); }
+.concept-icon {
+  width: 48px; height: 48px; border-radius: var(--r-lg); display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.concept-icon .ph { font-size: 24px; }
+.concept-arrow { color: var(--text-muted); transition: transform var(--dur-micro) var(--ease-out), color var(--dur-micro); }
+.concept-card:hover .concept-arrow { transform: translateX(3px); color: var(--primary); }
+.concept-title { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+.concept-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--sp-4); flex: 1; }
+.concept-meta { display: flex; align-items: center; gap: var(--sp-3); font-size: 0.8125rem; color: var(--text-muted); flex-wrap: wrap; }
+.concept-meta-item { display: inline-flex; align-items: center; gap: 4px; }
+.concept-meta-item .util-icon { width: 14px; height: 14px; }
+.concept-progress { margin-top: var(--sp-3); }
+.concept-progress-bar { height: 4px; background: var(--bg-secondary); border-radius: var(--r-full); overflow: hidden; margin-bottom: 4px; }
+.concept-progress-fill { height: 100%; background: var(--primary); border-radius: var(--r-full); }
+.concept-progress-text { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ============================================================
+   POPULAR PATHS
+   ============================================================ */
+.popular-paths { margin-bottom: var(--sp-8); }
+.paths-featured {
+  background: linear-gradient(135deg, var(--primary-light), var(--secondary-light));
+  border: 1px solid var(--primary-dark-light); border-radius: var(--r-xl); padding: var(--sp-6);
+  margin-bottom: var(--sp-5); display: grid; grid-template-columns: 1fr auto; gap: var(--sp-6); align-items: center;
+}
+.paths-featured-label { font-size: 0.75rem; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.paths-featured-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+.paths-featured-desc { font-size: 0.9375rem; color: var(--text-secondary); margin-bottom: var(--sp-4); }
+.paths-featured-meta { display: flex; align-items: center; gap: var(--sp-4); font-size: 0.875rem; color: var(--text-secondary); }
+.paths-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+.path-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-5); cursor: pointer; transition: all var(--dur-standard) var(--ease-out);
+  display: flex; gap: var(--sp-4); align-items: flex-start;
+}
+.path-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--primary); }
+.path-icon { width: 44px; height: 44px; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.path-icon .ph { font-size: 22px; }
+.path-info { flex: 1; min-width: 0; }
+.path-title { font-size: 0.9375rem; font-weight: 600; margin-bottom: 4px; }
+.path-desc { font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 8px; }
+.path-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ============================================================
+   FEATURED CONCEPTS
+   ============================================================ */
+.featured-concepts { margin-bottom: var(--sp-8); }
+.featured-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-5); }
+.featured-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-5); cursor: pointer; transition: all var(--dur-standard) var(--ease-out);
+}
+.featured-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.featured-card-header { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+.featured-icon { width: 56px; height: 56px; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; }
+.featured-icon .ph { font-size: 28px; }
+.featured-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.featured-desc { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--sp-4); }
+.featured-meta { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+
+/* ============================================================
+   COURSE MODE
+   ============================================================ */
+.course-mode { display: none; }
+.course-mode.active { display: block; animation: viewFade 0.4s var(--ease-out); }
+.browse-mode { display: block; }
+.browse-mode.hidden { display: none; }
+@keyframes viewFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+.course-back { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--sp-5); cursor: pointer; transition: color var(--dur-micro); background: none; border: none; font-family: var(--font-sans); }
+.course-back:hover { color: var(--primary); }
+
+.course-header { margin-bottom: var(--sp-7); }
+.course-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-6); margin-bottom: var(--sp-4); }
+.course-header-info { flex: 1; }
+.course-header-title { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+.course-header-desc { font-size: 1rem; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin-bottom: var(--sp-4); }
+.course-header-meta { display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.course-header-actions { display: flex; gap: var(--sp-3); }
+
+.course-progress-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-6); margin-bottom: var(--sp-6);
+}
+
+/* ============================================================
+   CONCEPT MAP
+   ============================================================ */
+.concept-map-container {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
+  padding: var(--sp-6); margin-bottom: var(--sp-6); overflow-x: auto;
+}
+.concept-map-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
+.concept-map-title { font-size: 0.9375rem; font-weight: 600; }
+.concept-map-subtitle { font-size: 0.8125rem; color: var(--text-secondary); margin-top: 2px; }
+.concept-map { display: flex; align-items: center; gap: var(--sp-6); min-width: 700px; padding: var(--sp-4) 0; }
+.concept-map-branches { display: flex; flex-direction: column; gap: var(--sp-3); }
+.concept-map-node {
+  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r-lg);
+  cursor: pointer; transition: all var(--dur-standard) var(--ease-out); min-width: 180px;
+  position: relative;
+}
+.concept-map-node:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.concept-map-node.completed { border-color: var(--success); background: var(--success-light); }
+.concept-map-node.current { border-color: var(--primary); background: var(--primary-light); box-shadow: var(--shadow-glow); }
+.concept-map-node.available { border-color: var(--border-strong); }
+.concept-map-node.locked { border-color: var(--border); opacity: 0.6; cursor: not-allowed; }
+.concept-map-node-icon { width: 32px; height: 32px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.concept-map-node-icon .ph { font-size: 18px; }
+.concept-map-node-title { font-size: 0.875rem; font-weight: 600; }
+.concept-map-connector { width: 32px; height: 2px; background: var(--border); flex-shrink: 0; position: relative; }
+.concept-map-connector.completed { background: var(--success); }
+.concept-map-connector.current { background: linear-gradient(90deg, var(--success), var(--primary)); }
+.concept-map-connector::after { content: ''; position: absolute; right: -4px; top: -3px; width: 0; height: 0; border-left: 6px solid var(--border); border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+.concept-map-connector.completed::after { border-left-color: var(--success); }
+.concept-map-connector.current::after { border-left-color: var(--primary); }
+.concept-map-legend { display: flex; align-items: center; gap: var(--sp-6); margin-top: var(--sp-5); padding-top: var(--sp-4); border-top: 1px solid var(--border); font-size: 0.8125rem; color: var(--text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: var(--r-full); }
+.legend-dot.current { background: var(--primary); }
+.legend-dot.next { background: var(--primary-light); border: 1px solid var(--primary); }
+.legend-dot.locked { background: var(--bg-secondary); border: 1px dashed var(--border); }
+
+/* ============================================================
+   NEXT CONCEPT
+   ============================================================ */
+.next-concept {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--r-xl); padding: var(--sp-8); color: white; margin-bottom: var(--sp-6);
+  display: grid; grid-template-columns: 1fr auto; gap: var(--sp-6); align-items: center;
+}
+.next-concept-label { font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; margin-bottom: 8px; }
+.next-concept-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; }
+.next-concept-desc { font-size: 1rem; opacity: 0.9; margin-bottom: var(--sp-5); }
+.next-concept-btn { background: white; color: var(--primary); padding: var(--sp-3) var(--sp-6); border-radius: var(--r-md); font-weight: 600; font-size: 0.9375rem; display: inline-flex; align-items: center; gap: var(--sp-2); transition: all var(--dur-micro); border: none; cursor: pointer; }
+.next-concept-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+
+/* ============================================================
+   COURSE SWITCHER
+   ============================================================ */
+.course-switcher { display: flex; gap: var(--sp-3); margin-bottom: var(--sp-6); overflow-x: auto; padding-bottom: var(--sp-2); }
+.course-switcher-card {
+  flex-shrink: 0; padding: var(--sp-3) var(--sp-4); background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--r-lg); cursor: pointer;
+  transition: all var(--dur-micro) var(--ease-out); display: flex; align-items: center; gap: var(--sp-3);
+  min-width: 220px;
+}
+.course-switcher-card:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+.course-switcher-card.active { border-color: var(--primary); background: var(--primary-light); }
+.course-switcher-icon { width: 40px; height: 40px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.course-switcher-icon .ph { font-size: 22px; }
+.course-switcher-info { min-width: 0; }
+.course-switcher-title { font-size: 0.875rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.course-switcher-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ============================================================
+   COURSE CONCEPTS GRID
+   ============================================================ */
+.course-concepts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-8); }
+
+/* ============================================================
+   TOOLTIP
+   ============================================================ */
+.tooltip {
+  position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--text-primary); color: white; padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md); font-size: 0.8125rem; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity var(--dur-micro);
+  z-index: 10; box-shadow: var(--shadow-lg);
+}
+.tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--text-primary); }
+.concept-map-node:hover .tooltip { opacity: 1; }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state { text-align: center; padding: var(--sp-12) var(--sp-8); }
+.empty-state-title { font-size: 1.125rem; font-weight: 600; margin-bottom: var(--sp-2); }
+.empty-state-text { font-size: 0.875rem; color: var(--text-secondary); max-width: 320px; margin: 0 auto var(--sp-6); line-height: 1.6; }
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-5); }
+.section-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+.section-subtitle { font-size: 0.9375rem; color: var(--text-secondary); margin-top: 4px; }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); box-shadow: var(--shadow-xl); }
+  .main-content { margin-left: 0; }
+  .mobile-menu-btn { display: flex; }
+  .concept-grid, .featured-grid, .course-concepts-grid { grid-template-columns: repeat(2, 1fr); }
+  .paths-grid { grid-template-columns: 1fr; }
+  .continue-learning { grid-template-columns: 1fr; }
+  .continue-next { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: var(--sp-4); }
+  .learn-hero { grid-template-columns: 1fr; }
+  .next-concept { grid-template-columns: 1fr; }
+  .filter-row { flex-direction: column; align-items: stretch; }
+  .difficulty-filter-wrap { align-self: flex-start; }
+}
+@media (max-width: 768px) {
+  .page { padding: var(--sp-4); }
+  .topbar { padding: 0 var(--sp-4); }
+  .topbar-search { display: none; }
+  .concept-grid, .featured-grid, .course-concepts-grid { grid-template-columns: 1fr; }
+  .learn-hero-title { font-size: 2rem; }
+  .course-header-title { font-size: 1.5rem; }
+  .paths-featured { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.flex { display: flex; } .flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-2 { gap: var(--sp-2); } .gap-3 { gap: var(--sp-3); } .gap-4 { gap: var(--sp-4); }
+.mt-2 { margin-top: var(--sp-2); } .mt-4 { margin-top: var(--sp-4); } .mb-4 { margin-bottom: var(--sp-4); }
+.text-sm { font-size: 0.875rem; } .text-xs { font-size: 0.75rem; }
+.text-muted { color: var(--text-muted); } .text-secondary { color: var(--text-secondary); }
+.font-semibold { font-weight: 600; } .w-full { width: 100%; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR — Lucide icons for navigation -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <circle cx="14" cy="14" r="12" fill="url(#brandGrad)"/>
+        <path d="M9 14C9 11.5 11 9.5 14 9.5C17 9.5 19 11.5 19 14C19 16.5 17 18.5 14 18.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <path d="M11 14C11 12.5 12.5 11 14 11C15.5 11 17 12.5 17 14" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+        <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#6366F1"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs>
+      </svg>
+      <span class="sidebar-brand-text">Helix</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Learn</div>
+      <a href="qwen_main.html" class="nav-item">
+        <i data-lucide="home" class="nav-icon" aria-hidden="true"></i>
+        Home
+      </a>
+      <button class="nav-item active" data-page="learn" aria-current="page">
+        <i data-lucide="book-open" class="nav-icon" aria-hidden="true"></i>
+        Learn
+      </button>
+      <a href="qwen_practice.html" class="nav-item">
+        <i data-lucide="target" class="nav-icon" aria-hidden="true"></i>
+        Practice
+      </a>
+      <a href="qwen_main.html#projects" class="nav-item">
+        <i data-lucide="layout-grid" class="nav-icon" aria-hidden="true"></i>
+        Projects
+      </a>
+      <a href="qwen_main.html#sandbox" class="nav-item">
+        <i data-lucide="code-2" class="nav-icon" aria-hidden="true"></i>
+        Sandbox
+      </a>
+      <div class="sidebar-section-label">Insights</div>
+      <a href="qwen_main.html#analytics" class="nav-item">
+        <i data-lucide="bar-chart-3" class="nav-icon" aria-hidden="true"></i>
+        Analytics
+      </a>
+      <a href="qwen_main.html#community" class="nav-item">
+        <i data-lucide="users" class="nav-icon" aria-hidden="true"></i>
+        Community
+      </a>
+      <div class="sidebar-section-label">Account</div>
+      <a href="qwen_main.html#profile" class="nav-item">
+        <i data-lucide="user" class="nav-icon" aria-hidden="true"></i>
+        Profile
+      </a>
+      <a href="qwen_main.html#settings" class="nav-item">
+        <i data-lucide="settings" class="nav-icon" aria-hidden="true"></i>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+        <i data-lucide="palette" class="util-icon" aria-hidden="true"></i>
+        Theme
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar" role="banner">
+      <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <i data-lucide="menu" class="util-icon" aria-hidden="true"></i>
+      </button>
+      <div class="topbar-search" role="search">
+        <i data-lucide="search" class="util-icon" aria-hidden="true"></i>
+        <input type="text" id="topbar-search-input" placeholder="Search concepts, courses, or skills..." aria-label="Search" oninput="handleTopbarSearch(this.value)">
+        <span class="search-kbd">K</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" onclick="showStreakPopover()" aria-label="Streak: 12 days">
+          <i data-lucide="flame" class="util-icon" style="color: var(--warning);" aria-hidden="true"></i>
+          <span style="font-size: 0.75rem; font-weight: 600; margin-left: 2px;">12</span>
+        </button>
+        <button class="icon-btn" onclick="showNotificationPopover()" aria-label="Notifications">
+          <i data-lucide="bell" class="util-icon" aria-hidden="true"></i>
+          <span class="badge-dot" aria-hidden="true"></span>
+        </button>
+        <div class="avatar" role="img" aria-label="User avatar" onclick="window.location.href='qwen_main.html#profile'" style="cursor: pointer;">A</div>
+      </div>
+    </header>
+
+    <div class="page">
+
+      <!-- ============================================================
+           BROWSE MODE
+           ============================================================ -->
+      <div class="browse-mode" id="browse-mode">
+
+        <!-- LEARN HEADER — refined spacing -->
+        <div class="learn-hero">
+          <div>
+            <div style="font-size: 0.875rem; color: var(--primary); font-weight: 600; margin-bottom: var(--sp-2); display: flex; align-items: center; gap: var(--sp-2);">
+              <i data-lucide="book-open" class="util-icon" aria-hidden="true"></i>
+              Learn
+            </div>
+            <h1 class="learn-hero-title">Learn<br>Discover concepts. <span class="text-gradient">Build</span> real skills.</h1>
+            <p class="learn-hero-subtitle">Explore structured learning paths, with bite-sized lessons, hands-on practice, and a clear progression from fundamentals to advanced topics.</p>
+          </div>
+          <div class="learn-hero-illustration">
+            <img src="https://image.qwenlm.ai/public_source/ae3fdbe0-14b1-4fa3-a3d3-270576e77112/1294c17b8-64c9-4212-acef-c4d21fa1531e.png" alt="Student learning to code" style="border-radius: var(--r-2xl);">
+            <div class="hero-float" style="top: 5%; right: 0;">
+              <div style="font-size: 0.75rem; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 6px;">
+                <i data-lucide="footprints" class="util-icon" aria-hidden="true"></i>
+                Small Steps
+              </div>
+              <div style="font-size: 0.6875rem; color: var(--text-muted);">Big Progress</div>
+            </div>
+            <div class="hero-float" style="bottom: 10%; left: 0;">
+              <div style="display: flex; align-items: center; gap: var(--sp-2);">
+                <div style="width: 32px; height: 32px; background: var(--primary-light); border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                  <i data-lucide="code-2" class="util-icon" aria-hidden="true"></i>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 600;">Code</div>
+                  <div style="font-size: 0.6875rem; color: var(--text-muted);">Practice daily</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="learn-search" role="search">
+          <i data-lucide="search" class="util-icon" aria-hidden="true"></i>
+          <input type="text" id="learn-search-input" placeholder="Search courses, concepts, or skills..." aria-label="Search courses and concepts">
+          <button class="search-clear" id="search-clear" onclick="clearSearch()" aria-label="Clear search">
+            <i data-lucide="x" class="util-icon" aria-hidden="true"></i>
+          </button>
+        </div>
+
+        <!-- FILTER ROW: topics + difficulty in one row -->
+        <div class="filter-row">
+          <div class="topic-filters" role="tablist" aria-label="Topic filters">
+            <button class="topic-filter active" data-topic="all" onclick="filterTopic('all', this)" role="tab" aria-selected="true">All Topics</button>
+            <button class="topic-filter" data-topic="web" onclick="filterTopic('web', this)" role="tab" aria-selected="false">Web Development</button>
+            <button class="topic-filter" data-topic="data" onclick="filterTopic('data', this)" role="tab" aria-selected="false">Data Science</button>
+            <button class="topic-filter" data-topic="cs" onclick="filterTopic('cs', this)" role="tab" aria-selected="false">Computer Science</button>
+            <button class="topic-filter" data-topic="tools" onclick="filterTopic('tools', this)" role="tab" aria-selected="false">Tools & Platforms</button>
+            <button class="topic-filter topic-filter-more" onclick="toggleMoreTopics()" aria-label="More topics">
+              More
+              <i data-lucide="chevron-down" class="util-icon" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="difficulty-filter-wrap">
+            <select class="difficulty-filter" id="difficulty-filter" onchange="filterDifficulty(this.value)" aria-label="Filter by difficulty">
+              <option value="all">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CONTINUE LEARNING -->
+        <div class="section-header">
+          <div><div class="section-title">Continue Learning</div></div>
+          <button class="card-action" onclick="window.location.href='qwen_main.html#analytics'">View My Progress <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+        </div>
+        <div class="continue-learning" id="continue-learning">
+          <div class="continue-icon" style="background: #FEF3C7; color: #92400E;">
+            <i class="ph ph-file-js" aria-hidden="true"></i>
+          </div>
+          <div class="continue-info">
+            <div class="continue-title">Variables & Data Types</div>
+            <div class="continue-meta">Lesson 6 of 12</div>
+            <div class="continue-progress">
+              <div class="continue-progress-bar">
+                <div class="progress-track"><div class="progress-fill" style="width: 55%;"></div></div>
+              </div>
+              <div class="continue-progress-text">55%</div>
+            </div>
+          </div>
+          <div class="continue-next">
+            <div class="continue-next-label">Next Lesson</div>
+            <div class="continue-next-title">Data Types (int, float, string, bool)</div>
+            <button class="btn btn-primary" onclick="window.location.href='qwen_practice.html?course=js-fundamentals&concept=variables'; emitEvent('continue_learning_clicked', { course: 'js-fundamentals' });">
+              Continue
+              <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- BROWSE CONCEPTS -->
+        <div class="section-header">
+          <div>
+            <div class="section-title">Browse Concepts</div>
+            <div class="section-subtitle">Choose a topic to begin. Each concept includes lessons, practice and real examples.</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--sp-3);">
+            <span style="font-size: 0.875rem; color: var(--text-secondary);">Sort by:</span>
+            <select class="difficulty-filter" id="sort-filter" onchange="sortConcepts(this.value)" aria-label="Sort concepts">
+              <option value="popular">Most Popular</option>
+              <option value="newest">Newest</option>
+              <option value="difficulty">Difficulty</option>
+            </select>
+          </div>
+        </div>
+        <div class="concept-grid" id="concept-grid"></div>
+
+        <!-- POPULAR PATHS -->
+        <div class="popular-paths">
+          <div class="section-header">
+            <div><div class="section-title">Popular Paths</div></div>
+            <button class="card-action" onclick="window.location.href='qwen_main.html#path'">View All <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+          </div>
+          <div class="paths-featured">
+            <div>
+              <div class="paths-featured-label">Featured Path</div>
+              <div class="paths-featured-title">Web Development</div>
+              <div class="paths-featured-desc">Build modern websites from scratch with HTML, CSS, JavaScript, and React.</div>
+              <div class="paths-featured-meta">
+                <span style="display: inline-flex; align-items: center; gap: 4px;"><i data-lucide="book-open" class="util-icon" aria-hidden="true"></i> 24 lessons</span>
+                <span>•</span>
+                <span>Beginner to Intermediate</span>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="selectCourse('web-dev'); emitEvent('path_selected', { path: 'web-dev' });">
+              Start Path
+              <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="paths-grid" id="paths-grid"></div>
+        </div>
+
+        <!-- FEATURED CONCEPTS -->
+        <div class="featured-concepts">
+          <div class="section-header">
+            <div>
+              <div class="section-title">Featured Concepts</div>
+              <div class="section-subtitle">Hand-picked concepts to help you build real skills.</div>
+            </div>
+            <button class="card-action" onclick="document.getElementById('concept-grid').scrollIntoView({ behavior: 'smooth' })">View All <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i></button>
+          </div>
+          <div class="featured-grid" id="featured-grid"></div>
+        </div>
+
+      </div>
+
+      <!-- ============================================================
+           COURSE MODE
+           ============================================================ -->
+      <div class="course-mode" id="course-mode">
+
+        <button class="course-back" onclick="backToBrowse()" aria-label="Back to all courses">
+          <i data-lucide="arrow-left" class="util-icon" aria-hidden="true"></i>
+          All Courses
+        </button>
+
+        <div class="course-header" id="course-header"></div>
+
+        <div class="section-header">
+          <div>
+            <div class="section-title">Explore Other Courses</div>
+            <div class="section-subtitle">Switch to another course without losing your place.</div>
+          </div>
+        </div>
+        <div class="course-switcher" id="course-switcher"></div>
+
+        <div class="section-header">
+          <div><div class="section-title">Continue Learning</div></div>
+        </div>
+        <div class="continue-learning" id="course-continue"></div>
+
+        <div class="concept-map-container">
+          <div class="concept-map-header">
+            <div>
+              <div class="concept-map-title">Concept Map</div>
+              <div class="concept-map-subtitle">See how concepts connect and what to learn next.</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">
+              <i data-lucide="maximize-2" class="util-icon" aria-hidden="true"></i>
+              Explore in Map View
+            </button>
+          </div>
+          <div class="concept-map" id="concept-map"></div>
+          <div class="concept-map-legend">
+            <div class="legend-item"><div class="legend-dot current"></div> Current Concept</div>
+            <div class="legend-item"><div class="legend-dot next"></div> Next Concepts</div>
+            <div class="legend-item"><div class="legend-dot locked"></div> Locked Concepts</div>
+          </div>
+        </div>
+
+        <div class="next-concept" id="next-concept"></div>
+
+        <div class="section-header">
+          <div><div class="section-title">Course Concepts</div></div>
+        </div>
+        <div class="course-concepts-grid" id="course-concepts-grid"></div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   HELIX LEARN PAGE — PHASE 2A REFINED
+   Icon system: Phosphor (concepts) + Lucide (UI/nav)
+   ============================================================ */
+
+// ============================================================
+// ICON METAPHOR MAP — Phosphor for concepts
+// ============================================================
+const conceptIconMap = {
+  'variables':      { icon: 'ph-brackets-curly',  bg: '#FEF3C7', color: '#92400E', label: 'JS' },
+  'conditionals':   { icon: 'ph-git-branch',       bg: '#DBEAFE', color: '#1E40AF' },
+  'loops':          { icon: 'ph-arrows-clockwise', bg: '#D1FAE5', color: '#065F46' },
+  'functions':      { icon: 'ph-function',         bg: '#FEE2E2', color: '#991B1B' },
+  'arrays':         { icon: 'ph-list-dashes',      bg: '#E0E7FF', color: '#3730A3' },
+  'objects':        { icon: 'ph-cube',             bg: '#FCE7F3', color: '#9D174D' },
+  'data-structures':{ icon: 'ph-stack',            bg: '#F5F3FF', color: '#5B21B6' },
+  'algorithms':     { icon: 'ph-flow-arrow',       bg: '#ECFDF5', color: '#065F46' },
+  'web-dev':        { icon: 'ph-browser',          bg: '#DBEAFE', color: '#1E40AF' },
+  'tools':          { icon: 'ph-wrench',           bg: '#FEF3C7', color: '#92400E' },
+  'database':       { icon: 'ph-database',         bg: '#FEE2E2', color: '#991B1B' },
+  'api':            { icon: 'ph-plugs-connected',  bg: '#E0E7FF', color: '#3730A3' },
+  'python':         { icon: 'ph-file-py',          bg: '#DBEAFE', color: '#1E40AF' },
+  'javascript':     { icon: 'ph-file-js',          bg: '#FEF3C7', color: '#92400E' },
+  'html':           { icon: 'ph-file-html',        bg: '#FEE2E2', color: '#991B1B' },
+  'css':            { icon: 'ph-file-css',         bg: '#DBEAFE', color: '#1E40AF' },
+  'react':          { icon: 'ph-atom',             bg: '#E0F2FE', color: '#075985' },
+  'node':           { icon: 'ph-hexagon',          bg: '#D1FAE5', color: '#065F46' },
+  'git':            { icon: 'ph-git-branch',       bg: '#FEE2E2', color: '#991B1B' },
+  'network':        { icon: 'ph-network',          bg: '#F5F3FF', color: '#5B21B6' }
+};
+
+// ============================================================
+// COURSE ICON MAP — recognizable technology icons
+// ============================================================
+const courseIconMap = {
+  'js-fundamentals': { icon: 'ph-file-js',       bg: '#FEF3C7', color: '#92400E', label: 'JS' },
+  'python-basics':   { icon: 'ph-file-py',       bg: '#DBEAFE', color: '#1E40AF', label: 'Py' },
+  'web-dev':         { icon: 'ph-browser',       bg: '#D1FAE5', color: '#065F46', label: 'WD' },
+  'data-science':    { icon: 'ph-chart-bar',     bg: '#FEE2E2', color: '#991B1B', label: 'DS' },
+  'algorithms':      { icon: 'ph-flow-arrow',    bg: '#F5F3FF', color: '#5B21B6', label: 'Al' }
+};
+
+// ============================================================
+// COURSE DATA
+// ============================================================
+const courses = {
+  'js-fundamentals': {
+    id: 'js-fundamentals',
+    title: 'JavaScript Fundamentals',
+    desc: 'Master the building blocks of JavaScript — variables, data types, control flow, and functions.',
+    difficulty: 'beginner', topic: 'web', lessons: 12, time: '~3 hrs',
+    icon: 'ph-file-js', iconBg: '#FEF3C7', iconColor: '#92400E',
+    progress: 55, currentLesson: 6, nextLesson: 'Data Types (int, float, string, bool)',
+    concepts: [
+      { id: 'variables', name: 'Variables & Data Types', status: 'completed', lessons: 12, time: '~1.5 hrs', difficulty: 'beginner', desc: 'Learn how to store and work with different types of data in JavaScript.' },
+      { id: 'conditionals', name: 'Conditionals', status: 'completed', lessons: 10, time: '~1.2 hrs', difficulty: 'beginner', desc: 'Make decisions in your code using if, else, and switch.' },
+      { id: 'loops', name: 'Loops', status: 'current', lessons: 14, time: '~2 hrs', difficulty: 'intermediate', desc: 'Use loops to repeat tasks and work with collections of data.' },
+      { id: 'functions', name: 'Functions', status: 'available', lessons: 16, time: '~2.5 hrs', difficulty: 'intermediate', desc: 'Write reusable blocks of code to solve problems.' },
+      { id: 'arrays', name: 'Arrays', status: 'locked', lessons: 12, time: '~2 hrs', difficulty: 'intermediate', desc: 'Store and manipulate lists of data using arrays.' },
+      { id: 'objects', name: 'Objects', status: 'locked', lessons: 10, time: '~1.5 hrs', difficulty: 'intermediate', desc: 'Work with structured data using objects.' }
+    ]
+  },
+  'python-basics': {
+    id: 'python-basics',
+    title: 'Python Basics',
+    desc: 'A gentle introduction to Python programming for beginners.',
+    difficulty: 'beginner', topic: 'cs', lessons: 16, time: '~4 hrs',
+    icon: 'ph-file-py', iconBg: '#DBEAFE', iconColor: '#1E40AF',
+    progress: 0, currentLesson: 0, nextLesson: 'Variables and Types',
+    concepts: [
+      { id: 'py-variables', name: 'Variables & Types', status: 'current', lessons: 8, time: '~1 hr', difficulty: 'beginner', desc: 'Understanding Python variables and data types.' },
+      { id: 'py-control', name: 'Control Flow', status: 'locked', lessons: 10, time: '~1.5 hrs', difficulty: 'beginner', desc: 'If statements and loops in Python.' },
+      { id: 'py-functions', name: 'Functions', status: 'locked', lessons: 12, time: '~2 hrs', difficulty: 'intermediate', desc: 'Defining and calling functions.' }
+    ]
+  },
+  'web-dev': {
+    id: 'web-dev',
+    title: 'Web Development',
+    desc: 'Build modern websites from scratch with HTML, CSS, and JavaScript.',
+    difficulty: 'beginner', topic: 'web', lessons: 24, time: '~6 hrs',
+    icon: 'ph-browser', iconBg: '#D1FAE5', iconColor: '#065F46',
+    progress: 0, currentLesson: 0, nextLesson: 'HTML Fundamentals',
+    concepts: [
+      { id: 'html', name: 'HTML Fundamentals', status: 'current', lessons: 8, time: '~1 hr', difficulty: 'beginner', desc: 'Structure your web pages with HTML.' },
+      { id: 'css', name: 'CSS Styling', status: 'locked', lessons: 10, time: '~2 hrs', difficulty: 'beginner', desc: 'Style your pages with CSS.' },
+      { id: 'js-web', name: 'JavaScript for Web', status: 'locked', lessons: 12, time: '~3 hrs', difficulty: 'intermediate', desc: 'Add interactivity with JavaScript.' }
+    ]
+  },
+  'data-science': {
+    id: 'data-science',
+    title: 'Data Science',
+    desc: 'Work with data and build insights using Python and statistics.',
+    difficulty: 'intermediate', topic: 'data', lessons: 28, time: '~8 hrs',
+    icon: 'ph-chart-bar', iconBg: '#FEE2E2', iconColor: '#991B1B',
+    progress: 0, currentLesson: 0, nextLesson: 'Introduction to Data',
+    concepts: [
+      { id: 'data-intro', name: 'Introduction to Data', status: 'current', lessons: 6, time: '~1 hr', difficulty: 'beginner', desc: 'What is data and how we use it.' },
+      { id: 'stats', name: 'Statistics Basics', status: 'locked', lessons: 10, time: '~2 hrs', difficulty: 'intermediate', desc: 'Mean, median, mode, and distributions.' },
+      { id: 'visualization', name: 'Data Visualization', status: 'locked', lessons: 12, time: '~3 hrs', difficulty: 'intermediate', desc: 'Charts, graphs, and visual storytelling.' }
+    ]
+  },
+  'algorithms': {
+    id: 'algorithms',
+    title: 'Algorithms',
+    desc: 'Learn problem-solving strategies and common algorithms.',
+    difficulty: 'advanced', topic: 'cs', lessons: 20, time: '~5 hrs',
+    icon: 'ph-flow-arrow', iconBg: '#F5F3FF', iconColor: '#5B21B6',
+    progress: 0, currentLesson: 0, nextLesson: 'What are Algorithms?',
+    concepts: [
+      { id: 'algo-intro', name: 'Algorithm Basics', status: 'current', lessons: 6, time: '~1 hr', difficulty: 'intermediate', desc: 'Understanding algorithms and complexity.' },
+      { id: 'sorting', name: 'Sorting Algorithms', status: 'locked', lessons: 8, time: '~2 hrs', difficulty: 'advanced', desc: 'Bubble sort, merge sort, quick sort.' },
+      { id: 'search', name: 'Search Algorithms', status: 'locked', lessons: 6, time: '~1.5 hrs', difficulty: 'advanced', desc: 'Binary search and graph traversal.' }
+    ]
+  }
+};
+
+const paths = [
+  { id: 'web-dev', name: 'Web Development', desc: 'Build modern websites from scratch', lessons: 24, icon: 'ph-browser', color: '#DBEAFE', iconColor: '#1E40AF' },
+  { id: 'data-science', name: 'Data Science', desc: 'Work with data and build insights', lessons: 28, icon: 'ph-chart-bar', color: '#FEE2E2', iconColor: '#991B1B' },
+  { id: 'algorithms', name: 'Computer Science Basics', desc: 'Core concepts for problem solving', lessons: 18, icon: 'ph-flow-arrow', color: '#F5F3FF', iconColor: '#5B21B6' },
+  { id: 'tools', name: 'Tools & Platforms', desc: 'Learn Git, VS Code, and more', lessons: 14, icon: 'ph-wrench', color: '#FEF3C7', iconColor: '#92400E' }
+];
+
+const featuredConcepts = [
+  { id: 'python-basics', title: 'Python Basics', desc: 'A gentle introduction to Python programming.', level: 'Beginner', lessons: 12, icon: 'ph-file-py', iconBg: '#DBEAFE', iconColor: '#1E40AF' },
+  { id: 'web-dev-basics', title: 'Web Development Basics', desc: 'Learn HTML, CSS, and build your first web page.', level: 'Beginner', lessons: 16, icon: 'ph-browser', iconBg: '#F5F3FF', iconColor: '#5B21B6' },
+  { id: 'problem-solving', title: 'Problem Solving', desc: 'Learn how to think and break down problems.', level: 'All Levels', lessons: 10, icon: 'ph-lightbulb', iconBg: '#FEF3C7', iconColor: '#92400E' }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  currentMode: 'browse',
+  currentCourse: null,
+  activeTopic: 'all',
+  activeDifficulty: 'all',
+  searchQuery: '',
+  session: { id: 'sess_' + Math.random().toString(36).slice(2, 10), learnerId: 'learner_alex_001' },
+  sequence: { id: 'seq_' + Math.random().toString(36).slice(2, 8), counter: 0 }
+};
+
+// ============================================================
+// EVENT SYSTEM
+// ============================================================
+const eventCollector = [];
+const EVENT_TYPES = {
+  learn_page_opened: 'learn_page_opened',
+  search_performed: 'search_performed',
+  topic_filter_changed: 'topic_filter_changed',
+  difficulty_filter_changed: 'difficulty_filter_changed',
+  path_viewed: 'path_viewed',
+  path_selected: 'path_selected',
+  course_viewed: 'course_viewed',
+  course_selected: 'course_selected',
+  course_switched: 'course_switched',
+  concept_viewed: 'concept_viewed',
+  concept_selected: 'concept_selected',
+  concept_map_opened: 'concept_map_opened',
+  concept_map_node_hovered: 'concept_map_node_hovered',
+  concept_map_node_selected: 'concept_map_node_selected',
+  continue_learning_clicked: 'continue_learning_clicked',
+  next_concept_selected: 'next_concept_selected',
+  view_changed: 'view_changed'
+};
+
+function emitEvent(eventType, payload = {}) {
+  state.sequence.counter++;
+  const event = {
+    event_id: 'evt_' + Date.now().toString(36) + '_' + state.sequence.counter,
+    event_type: eventType,
+    learner_id: state.session.learnerId,
+    session_id: state.session.id,
+    course_id: state.currentCourse,
+    timestamp: new Date().toISOString(),
+    source: 'helix_web_learn',
+    view: 'learn',
+    sequence_id: state.sequence.id,
+    step_number: state.sequence.counter,
+    payload
+  };
+  eventCollector.push(event);
+  console.log('[Helix Learn Event]', eventType, payload);
+}
+
+// ============================================================
+// ICON RENDERING HELPERS
+// ============================================================
+function conceptIconHTML(conceptId, size = 24) {
+  const mapping = conceptIconMap[conceptId] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+  return `<i class="ph ${mapping.icon}" style="font-size: ${size}px; color: ${mapping.color};" aria-hidden="true"></i>`;
+}
+
+function courseIconHTML(courseId, size = 28) {
+  const mapping = courseIconMap[courseId] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+  return `<i class="ph ${mapping.icon}" style="font-size: ${size}px; color: ${mapping.color};" aria-hidden="true"></i>`;
+}
+
+function badgeClass(difficulty) {
+  if (difficulty === 'beginner') return 'badge-success';
+  if (difficulty === 'intermediate') return 'badge-primary';
+  return 'badge-warning';
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+function renderConceptGrid() {
+  const grid = document.getElementById('concept-grid');
+  const allConcepts = [];
+  Object.values(courses).forEach(course => {
+    course.concepts.forEach(c => {
+      allConcepts.push({ ...c, courseId: course.id, courseTitle: course.title });
+    });
+  });
+
+  let filtered = allConcepts;
+  if (state.activeTopic !== 'all') {
+    filtered = filtered.filter(c => courses[c.courseId].topic === state.activeTopic);
+  }
+  if (state.activeDifficulty !== 'all') {
+    filtered = filtered.filter(c => c.difficulty === state.activeDifficulty);
+  }
+  if (state.searchQuery) {
+    const q = state.searchQuery.toLowerCase();
+    filtered = filtered.filter(c => c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q));
+  }
+
+  if (state.sortType === 'newest') {
+    filtered = [...filtered].reverse();
+  } else if (state.sortType === 'difficulty') {
+    const diffMap = { beginner: 1, intermediate: 2, advanced: 3 };
+    filtered = [...filtered].sort((a, b) => (diffMap[a.difficulty] || 0) - (diffMap[b.difficulty] || 0));
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <div style="width: 80px; height: 80px; margin: 0 auto var(--sp-4); background: var(--bg-secondary); border-radius: var(--r-full); display: flex; align-items: center; justify-content: center;">
+          <i class="ph ph-magnifying-glass" style="font-size: 32px; color: var(--text-muted);" aria-hidden="true"></i>
+        </div>
+        <div class="empty-state-title">No concepts found</div>
+        <div class="empty-state-text">Try adjusting your search or filters to find what you're looking for.</div>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => {
+    const mapping = conceptIconMap[c.id] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+    const progress = c.status === 'completed' ? 100 : c.status === 'current' ? 55 : 0;
+    return `
+      <div class="concept-card" onclick="selectConcept('${c.courseId}', '${c.id}')" tabindex="0" role="button" aria-label="${c.name}">
+        <div class="concept-card-header">
+          <div class="concept-icon" style="background: ${mapping.bg};">
+            <i class="ph ${mapping.icon}" style="font-size: 24px; color: ${mapping.color};" aria-hidden="true"></i>
+          </div>
+          <i class="ph ph-arrow-right concept-arrow" aria-hidden="true"></i>
+        </div>
+        <div class="concept-title">${c.name}</div>
+        <div class="concept-desc">${c.desc}</div>
+        <div class="concept-meta">
+          <span class="concept-meta-item">
+            <i data-lucide="book-open" class="util-icon" aria-hidden="true"></i>
+            ${c.lessons} lessons
+          </span>
+          <span class="concept-meta-item">
+            <i data-lucide="clock" class="util-icon" aria-hidden="true"></i>
+            ${c.time}
+          </span>
+          <span class="badge ${badgeClass(c.difficulty)}">${c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1)}</span>
+        </div>
+        ${progress > 0 ? `
+          <div class="concept-progress">
+            <div class="concept-progress-bar"><div class="concept-progress-fill" style="width: ${progress}%;"></div></div>
+            <div class="concept-progress-text">${progress}% complete</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+  lucide.createIcons();
+}
+
+function renderPaths() {
+  const grid = document.getElementById('paths-grid');
+  grid.innerHTML = paths.map(p => `
+    <div class="path-card" onclick="selectCourse('${p.id}')" tabindex="0" role="button" aria-label="${p.name} path">
+      <div class="path-icon" style="background: ${p.color};">
+        <i class="ph ${p.icon}" style="font-size: 22px; color: ${p.iconColor};" aria-hidden="true"></i>
+      </div>
+      <div class="path-info">
+        <div class="path-title">${p.name}</div>
+        <div class="path-desc">${p.desc}</div>
+        <div class="path-meta">${p.lessons} lessons</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderFeatured() {
+  const grid = document.getElementById('featured-grid');
+  grid.innerHTML = featuredConcepts.map(f => `
+    <div class="featured-card" onclick="selectCourse('${f.id in courses ? f.id : 'js-fundamentals'}')" tabindex="0" role="button" aria-label="${f.title}">
+      <div class="featured-card-header">
+        <div class="featured-icon" style="background: ${f.iconBg};">
+          <i class="ph ${f.icon}" style="font-size: 28px; color: ${f.iconColor};" aria-hidden="true"></i>
+        </div>
+      </div>
+      <div class="featured-title">${f.title}</div>
+      <div class="featured-desc">${f.desc}</div>
+      <div class="featured-meta">
+        <span class="badge ${f.level === 'Beginner' ? 'badge-success' : f.level === 'All Levels' ? 'badge-primary' : 'badge-warning'}">${f.level}</span>
+        <span class="text-xs text-muted">${f.lessons} lessons</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCourseMode(courseId) {
+  const course = courses[courseId];
+  if (!course) return;
+
+  const currentConcept = course.concepts.find(c => c.status === 'current') || course.concepts[0];
+
+  document.getElementById('course-header').innerHTML = `
+    <div class="course-header-top">
+      <div class="course-header-info">
+        <h1 class="course-header-title">${course.title}</h1>
+        <p class="course-header-desc">${course.desc}</p>
+        <div class="course-header-meta">
+          <span class="badge ${badgeClass(course.difficulty)}">${course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}</span>
+          <span class="text-sm text-muted" style="display: inline-flex; align-items: center; gap: 4px;">
+            <i data-lucide="book-open" class="util-icon" aria-hidden="true"></i>
+            ${course.lessons} lessons
+          </span>
+          <span class="text-sm text-muted">•</span>
+          <span class="text-sm text-muted" style="display: inline-flex; align-items: center; gap: 4px;">
+            <i data-lucide="clock" class="util-icon" aria-hidden="true"></i>
+            ${course.time}
+          </span>
+        </div>
+      </div>
+      <div class="course-header-actions">
+        <button class="btn btn-primary btn-lg" onclick="startOrContinueCourse('${courseId}')">
+          Continue Course
+          <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  `;
+
+  const switcher = document.getElementById('course-switcher');
+  switcher.innerHTML = Object.values(courses).map(c => {
+    const mapping = courseIconMap[c.id] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+    return `
+      <div class="course-switcher-card ${c.id === courseId ? 'active' : ''}" onclick="switchCourse('${c.id}')" tabindex="0" role="button" aria-label="Switch to ${c.title}">
+        <div class="course-switcher-icon" style="background: ${mapping.bg};">
+          <i class="ph ${mapping.icon}" style="font-size: 22px; color: ${mapping.color};" aria-hidden="true"></i>
+        </div>
+        <div class="course-switcher-info">
+          <div class="course-switcher-title">${c.title}</div>
+          <div class="course-switcher-meta">${c.lessons} lessons • ${c.progress}%</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('course-continue').innerHTML = `
+    <div class="continue-icon" style="background: ${course.iconBg}; color: ${course.iconColor};">
+      <i class="ph ${course.icon}" style="font-size: 28px;" aria-hidden="true"></i>
+    </div>
+    <div class="continue-info">
+      <div class="continue-title">${currentConcept ? currentConcept.name : course.title}</div>
+      <div class="continue-meta">Lesson ${course.currentLesson} of ${course.lessons}</div>
+      <div class="continue-progress">
+        <div class="continue-progress-bar">
+          <div class="progress-track"><div class="progress-fill" style="width: ${course.progress}%;"></div></div>
+        </div>
+        <div class="continue-progress-text">${course.progress}%</div>
+      </div>
+    </div>
+    <div class="continue-next">
+      <div class="continue-next-label">Next Lesson</div>
+      <div class="continue-next-title">${course.nextLesson}</div>
+      <button class="btn btn-primary" onclick="startOrContinueCourse('${courseId}')">
+        Continue
+        <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+      </button>
+    </div>
+  `;
+
+  // Concept map with Phosphor icons
+  const map = document.getElementById('concept-map');
+  const completedConcepts = course.concepts.filter(c => c.status === 'completed');
+  const currentConcepts = course.concepts.filter(c => c.status === 'current');
+  const availableConcepts = course.concepts.filter(c => c.status === 'available');
+  const lockedConcepts = course.concepts.filter(c => c.status === 'locked');
+
+  let mapHTML = '';
+  const allGroups = [
+    { concepts: completedConcepts, connectorClass: 'completed' },
+    { concepts: currentConcepts, connectorClass: 'current' },
+    { concepts: availableConcepts, connectorClass: '' },
+    { concepts: lockedConcepts, connectorClass: '' }
+  ];
+
+  allGroups.forEach((group, gi) => {
+    if (group.concepts.length === 0) return;
+    if (gi > 0) {
+      mapHTML += `<div class="concept-map-connector ${group.connectorClass}"></div>`;
+    }
+    mapHTML += '<div class="concept-map-branches">';
+    group.concepts.forEach(c => {
+      const mapping = conceptIconMap[c.id] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+      const statusLabel = c.status === 'completed' ? 'Completed' : c.status === 'current' ? 'In Progress' : c.status === 'available' ? 'Available' : 'Locked';
+      mapHTML += `
+        <div class="concept-map-node ${c.status}" onclick="selectConcept('${courseId}', '${c.id}')" tabindex="0" role="button" aria-label="${c.name} - ${statusLabel}">
+          <div class="tooltip">
+            <div style="font-weight: 600; margin-bottom: 4px;">${c.name}</div>
+            <div style="opacity: 0.8; font-size: 0.75rem;">${statusLabel} • ${c.lessons} lessons</div>
+          </div>
+          <div class="concept-map-node-icon" style="background: ${mapping.bg};">
+            <i class="ph ${mapping.icon}" style="font-size: 18px; color: ${mapping.color};" aria-hidden="true"></i>
+          </div>
+          <div class="concept-map-node-title">${c.name}</div>
+        </div>
+      `;
+    });
+    mapHTML += '</div>';
+  });
+  map.innerHTML = mapHTML;
+
+  const nextC = currentConcepts[0] || availableConcepts[0];
+  document.getElementById('next-concept').innerHTML = `
+    <div>
+      <div class="next-concept-label">Next Up</div>
+      <div class="next-concept-title">${nextC ? nextC.name : 'Start Learning'}</div>
+      <div class="next-concept-desc">${nextC ? nextC.desc : 'Begin your learning journey with this course.'}</div>
+      <button class="next-concept-btn" onclick="selectConcept('${courseId}', '${nextC ? nextC.id : ''}')">
+        Start Lesson
+        <i data-lucide="arrow-right" class="util-icon" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div style="font-size: 4rem; opacity: 0.3;">
+      <i class="ph ph-rocket-launch" style="font-size: 64px;" aria-hidden="true"></i>
+    </div>
+  `;
+
+  const cGrid = document.getElementById('course-concepts-grid');
+  cGrid.innerHTML = course.concepts.map(c => {
+    const mapping = conceptIconMap[c.id] || { icon: 'ph-code', bg: '#EEF2FF', color: '#4338CA' };
+    return `
+      <div class="concept-card" onclick="selectConcept('${courseId}', '${c.id}')" tabindex="0" role="button" aria-label="${c.name}">
+        <div class="concept-card-header">
+          <div class="concept-icon" style="background: ${mapping.bg};">
+            <i class="ph ${mapping.icon}" style="font-size: 24px; color: ${mapping.color};" aria-hidden="true"></i>
+          </div>
+          <i class="ph ph-arrow-right concept-arrow" aria-hidden="true"></i>
+        </div>
+        <div class="concept-title">${c.name}</div>
+        <div class="concept-desc">${c.desc}</div>
+        <div class="concept-meta">
+          <span class="concept-meta-item">
+            <i data-lucide="book-open" class="util-icon" aria-hidden="true"></i>
+            ${c.lessons} lessons
+          </span>
+          <span class="concept-meta-item">
+            <i data-lucide="clock" class="util-icon" aria-hidden="true"></i>
+            ${c.time}
+          </span>
+          <span class="badge ${badgeClass(c.difficulty)}">${c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  lucide.createIcons();
+}
+
+// ============================================================
+// ACTIONS & THEME
+// ============================================================
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('helix_theme', theme);
+  const toggleBtn = document.querySelector('.theme-toggle');
+  if (toggleBtn) {
+    toggleBtn.innerHTML = theme === 'dark'
+      ? '<i data-lucide="sun" class="util-icon" aria-hidden="true"></i> Light'
+      : '<i data-lucide="moon" class="util-icon" aria-hidden="true"></i> Dark';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('helix_theme');
+  if (saved) {
+    applyTheme(saved);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    applyTheme('dark');
+  }
+}
+
+function selectCourse(courseId) {
+  if (!courses[courseId]) {
+    courseId = 'js-fundamentals';
+  }
+  state.currentCourse = courseId;
+  state.currentMode = 'course';
+  document.getElementById('browse-mode').classList.add('hidden');
+  document.getElementById('course-mode').classList.add('active');
+  renderCourseMode(courseId);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  emitEvent(EVENT_TYPES.course_selected, { course_id: courseId });
+}
+
+function switchCourse(courseId) {
+  const from = state.currentCourse;
+  state.currentCourse = courseId;
+  renderCourseMode(courseId);
+  emitEvent(EVENT_TYPES.course_switched, { from, to: courseId });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToBrowse() {
+  state.currentMode = 'browse';
+  state.currentCourse = null;
+  document.getElementById('browse-mode').classList.remove('hidden');
+  document.getElementById('course-mode').classList.remove('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  emitEvent(EVENT_TYPES.view_changed, { to: 'browse' });
+}
+
+function startOrContinueCourse(courseId) {
+  const course = courses[courseId];
+  const targetConcept = (course && course.concepts.find(c => c.status === 'current')) || (course && course.concepts[0]);
+  const conceptId = targetConcept ? targetConcept.id : 'variables';
+  emitEvent(EVENT_TYPES.continue_learning_clicked, { course: courseId, concept: conceptId });
+  window.location.href = `qwen_practice.html?course=${encodeURIComponent(courseId)}&concept=${encodeURIComponent(conceptId)}`;
+}
+
+function selectConcept(courseId, conceptId) {
+  const course = courses[courseId];
+  const concept = course ? course.concepts.find(c => c.id === conceptId) : null;
+  if (concept && concept.status === 'locked') {
+    alert('Complete the previous concepts first to unlock this one.');
+    return;
+  }
+  emitEvent(EVENT_TYPES.concept_selected, { course_id: courseId, concept_id: conceptId });
+  window.location.href = `qwen_practice.html?course=${encodeURIComponent(courseId || 'js-fundamentals')}&concept=${encodeURIComponent(conceptId || 'variables')}`;
+}
+
+function filterTopic(topic, btn) {
+  state.activeTopic = topic;
+  document.querySelectorAll('.topic-filter').forEach(f => {
+    f.classList.remove('active');
+    f.setAttribute('aria-selected', 'false');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  renderConceptGrid();
+  emitEvent(EVENT_TYPES.topic_filter_changed, { topic });
+}
+
+function filterDifficulty(difficulty) {
+  state.activeDifficulty = difficulty;
+  renderConceptGrid();
+  emitEvent(EVENT_TYPES.difficulty_filter_changed, { difficulty });
+}
+
+function sortConcepts(sortType) {
+  state.sortType = sortType;
+  renderConceptGrid();
+}
+
+function clearSearch() {
+  document.getElementById('learn-search-input').value = '';
+  document.getElementById('search-clear').classList.remove('visible');
+  const topSearch = document.getElementById('topbar-search-input');
+  if (topSearch) topSearch.value = '';
+  state.searchQuery = '';
+  renderConceptGrid();
+}
+
+function toggleMoreTopics() {
+  const moreTopics = ['tools', 'cs', 'data', 'all'];
+  const curIdx = moreTopics.indexOf(state.activeTopic);
+  const next = moreTopics[(curIdx + 1) % moreTopics.length];
+  state.activeTopic = next;
+  document.querySelectorAll('.topic-filter').forEach(f => {
+    const isAct = f.getAttribute('data-topic') === next;
+    f.classList.toggle('active', isAct);
+    f.setAttribute('aria-selected', isAct ? 'true' : 'false');
+  });
+  renderConceptGrid();
+  emitEvent('topic_filter_changed', { topic: next });
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function handleTopbarSearch(val) {
+  state.searchQuery = val;
+  const learnInput = document.getElementById('learn-search-input');
+  if (learnInput) learnInput.value = val;
+  const searchClear = document.getElementById('search-clear');
+  if (searchClear) searchClear.classList.toggle('visible', val.length > 0);
+  renderConceptGrid();
+}
+
+function showStreakPopover() {
+  alert('🔥 12-Day Streak Active!\nYou have practiced consistently for 12 consecutive days. Keep it going!');
+}
+
+function showNotificationPopover() {
+  alert('🔔 Helix Notifications:\n• Great job! You completed Lesson 5: "Variable Scope"\n• New challenge unlocked in Loops\n• Daily goal: 15 mins (85% completed)');
+}
+
+// ============================================================
+// SEARCH & KEYBOARD
+// ============================================================
+const searchInput = document.getElementById('learn-search-input');
+const searchClear = document.getElementById('search-clear');
+let searchDebounce;
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(() => {
+      state.searchQuery = e.target.value;
+      const topSearch = document.getElementById('topbar-search-input');
+      if (topSearch) topSearch.value = e.target.value;
+      if (searchClear) searchClear.classList.toggle('visible', e.target.value.length > 0);
+      renderConceptGrid();
+      if (e.target.value.length > 2) {
+        emitEvent(EVENT_TYPES.search_performed, { query: e.target.value, results: document.querySelectorAll('.concept-card').length });
+      }
+    }, 300);
+  });
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    const searchEl = document.getElementById('topbar-search-input') || document.querySelector('.topbar-search input');
+    if (searchEl) searchEl.focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+});
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  renderConceptGrid();
+  renderPaths();
+  renderFeatured();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const courseParam = urlParams.get('course');
+  if (courseParam && courses[courseParam]) {
+    selectCourse(courseParam);
+  }
+
+  emitEvent(EVENT_TYPES.learn_page_opened, {});
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!prefersReduced && typeof anime !== 'undefined') {
+    anime({
+      targets: '.learn-hero > div:first-child',
+      opacity: [0, 1],
+      translateY: [12, 0],
+      duration: 450,
+      easing: 'easeOutCubic'
+    });
+    anime({
+      targets: '.learn-hero-illustration',
+      opacity: [0, 1],
+      translateX: [12, 0],
+      duration: 550,
+      easing: 'easeOutCubic',
+      delay: 80
+    });
+    anime({
+      targets: '.concept-card',
+      opacity: [0, 1],
+      translateY: [10, 0],
+      duration: 380,
+      easing: 'easeOutCubic',
+      delay: anime.stagger(50, { start: 150 })
+    });
+  }
+});
+</script>
+
+<script src="client_telemetry_bridge.js"></script>
+</body>
+</html>
