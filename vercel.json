@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/qwen_main.html" }
+    { "source": "/", "destination": "/qwen_main.html" },
+    { "source": "/learn", "destination": "/qwen_learn.html" },
+    { "source": "/practice", "destination": "/qwen_practice.html" }
   ]
 }
