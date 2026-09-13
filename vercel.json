@@ -1,7 +1,30 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/qwen_main.html" },
-    { "source": "/learn", "destination": "/qwen_learn.html" },
-    { "source": "/practice", "destination": "/qwen_practice.html" }
-  ]
+    {
+      "source": "/",
+      "destination": "/qwen_main.html"
+    },
+    {
+      "source": "/learn",
+      "destination": "/qwen_learn.html"
+    },
+    {
+      "source": "/practice",
+      "destination": "/qwen_practice.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "type": "service",
+        "service": "capsian-ai"
+      }
+    }
+  ],
+  "services": {
+    "capsian-ai": {
+      "root": ".",
+      "buildCommand": "pip install -r requirements.txt",
+      "entrypoint": "backend_server.py"
+    }
+  }
 }
